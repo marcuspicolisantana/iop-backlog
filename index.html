@@ -1,0 +1,1554 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Backlog Tático IOP | Eduzz</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --yellow:#FFBC00;--yellow-dark:#E2A800;--navy:#0D2772;--navy-mid:#1A3A9C;
+  --bg-base:#F7F8FA;--bg-surface:#FFFFFF;--bg-subtle:#F0F2F7;--bg-hover:#E8EBF4;
+  --border:#DDE1EE;--border-light:#EAEDF5;
+  --text-primary:#1A1E2E;--text-secondary:#4A5278;--text-muted:#8A92B2;
+  --success:#1DB87A;--success-bg:#E8F9F2;
+  --warning:#FF9500;--warning-bg:#FFF4E0;
+  --error:#E5343A;--error-bg:#FEECEC;
+  --info:#1A3A9C;--info-bg:#EAF0FF;
+  --radius-sm:8px;--radius-md:12px;--radius-lg:16px;
+  --shadow-sm:0 1px 4px rgba(13,39,114,0.06);
+  --shadow-lg:0 8px 32px rgba(13,39,114,0.14);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg-base);color:var(--text-primary);font-size:14px;line-height:1.5;}
+
+/* LOCK */
+.lock-screen{position:fixed;inset:0;background:linear-gradient(135deg,var(--navy),var(--navy-mid));display:flex;align-items:center;justify-content:center;z-index:999;}
+.lock-box{background:#fff;border-radius:var(--radius-lg);padding:40px;width:340px;text-align:center;box-shadow:var(--shadow-lg);}
+.lock-icon{font-size:40px;margin-bottom:14px;}
+.lock-logo{font-weight:700;color:var(--navy);font-size:22px;letter-spacing:-0.02em;margin-bottom:4px;}
+.lock-sub{font-size:13px;color:var(--text-muted);margin-bottom:22px;}
+.lock-input{width:100%;border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:12px 16px;font-size:15px;font-family:inherit;text-align:center;letter-spacing:0.1em;margin-bottom:10px;color:var(--text-primary);}
+.lock-input:focus{outline:none;border-color:var(--yellow);box-shadow:0 0 0 3px rgba(255,188,0,0.15);}
+.lock-btn{width:100%;padding:12px;background:var(--yellow);border:none;border-radius:var(--radius-sm);font-weight:700;font-size:15px;cursor:pointer;font-family:inherit;}
+.lock-btn:hover{background:var(--yellow-dark);}
+.lock-error{font-size:13px;color:var(--error);margin-top:8px;display:none;}
+
+/* HEADER */
+.header{position:fixed;top:0;left:0;right:0;height:60px;background:#fff;border-bottom:2px solid var(--yellow);display:flex;align-items:center;justify-content:space-between;padding:0 20px;z-index:100;box-shadow:var(--shadow-sm);}
+.logo{font-weight:700;color:var(--navy);font-size:20px;letter-spacing:-0.02em;}
+.header-left{display:flex;align-items:center;gap:14px;}
+.header-right{display:flex;gap:6px;align-items:center;}
+.nav-btn{padding:6px 12px;border-radius:var(--radius-sm);font-weight:600;font-size:12px;cursor:pointer;border:1.5px solid var(--border);background:transparent;color:var(--text-secondary);font-family:inherit;transition:all 0.15s;}
+.nav-btn:hover{background:var(--bg-subtle);}
+.nav-btn.active{background:var(--navy);color:#fff;border-color:var(--navy);}
+.btn{padding:7px 14px;border-radius:var(--radius-sm);font-weight:600;font-size:12px;cursor:pointer;border:none;font-family:inherit;transition:all 0.15s;}
+.btn-primary{background:var(--yellow);color:var(--text-primary);}
+.btn-primary:hover{background:var(--yellow-dark);}
+.btn-secondary{background:transparent;color:var(--navy);border:1.5px solid var(--border);}
+.btn-secondary:hover{background:var(--bg-subtle);}
+.btn-sm{padding:5px 10px;font-size:11px;}
+.btn-danger-sm{background:none;border:1.5px solid var(--border);border-radius:6px;padding:3px 9px;font-size:11px;font-weight:600;color:var(--error);cursor:pointer;font-family:inherit;}
+
+/* LAYOUT */
+.layout{display:flex;height:100vh;padding-top:60px;}
+.page{display:none;flex:1;overflow:hidden;}
+.page.active{display:flex;}
+
+/* SIDEBAR */
+.sidebar{width:280px;min-width:280px;background:#fff;border-right:1px solid var(--border);overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:12px;}
+.filter-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-muted);margin-bottom:5px;}
+.filter-buttons{display:flex;gap:4px;flex-wrap:wrap;}
+.filter-btn{padding:3px 9px;border-radius:20px;font-size:11px;font-weight:500;cursor:pointer;border:1.5px solid var(--border);background:#fff;color:var(--text-secondary);font-family:inherit;transition:all 0.15s;}
+.filter-btn.active{background:var(--yellow);border-color:var(--yellow);color:var(--text-primary);}
+.project-list{display:flex;flex-direction:column;gap:5px;}
+.project-item{padding:10px 11px;background:#fff;border:1.5px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;transition:all 0.15s;}
+.project-item:hover{border-color:var(--yellow);background:var(--bg-hover);}
+.project-item.active{border-color:var(--yellow);border-left-width:4px;background:#FFF8E0;}
+.project-num{font-size:10px;font-weight:600;color:var(--text-muted);margin-bottom:2px;}
+.project-name{font-weight:600;color:var(--text-primary);font-size:12px;margin-bottom:4px;}
+.project-meta{display:flex;gap:4px;flex-wrap:wrap;align-items:center;}
+.progress-bar-wrap{background:var(--bg-subtle);border-radius:4px;height:4px;margin-top:6px;overflow:hidden;}
+.progress-bar-fill{height:100%;background:var(--yellow);border-radius:4px;}
+
+/* BADGES */
+.badge{display:inline-flex;align-items:center;padding:2px 6px;border-radius:20px;font-size:10px;font-weight:500;}
+.badge-big1{background:var(--info-bg);color:var(--info);}
+.badge-big2{background:#FFF8E0;color:#E2A800;}
+.badge-not-started{background:var(--bg-subtle);color:var(--text-secondary);}
+.badge-in-progress{background:var(--warning-bg);color:var(--warning);}
+.badge-blocked{background:var(--error-bg);color:var(--error);}
+.badge-done{background:var(--success-bg);color:var(--success);}
+
+/* FLAG */
+.flag-btn{background:none;border:none;cursor:pointer;font-size:16px;padding:2px 4px;opacity:0.3;transition:opacity 0.15s;line-height:1;}
+.flag-btn.active{opacity:1;}
+
+/* MAIN */
+.main{flex:1;overflow-y:auto;padding:20px;}
+.empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;text-align:center;color:var(--text-muted);}
+.empty-state h3{font-size:18px;margin-bottom:8px;color:var(--text-secondary);}
+
+/* PROJECT HEADER */
+.project-header{background:linear-gradient(135deg,var(--navy),var(--navy-mid));padding:22px 26px;border-radius:var(--radius-md) var(--radius-md) 0 0;color:#fff;}
+.project-header-num{font-size:11px;font-weight:600;color:var(--yellow);margin-bottom:3px;}
+.project-header-title{font-size:22px;font-weight:700;margin-bottom:8px;}
+.project-header-meta{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+.project-header select{background:rgba(255,255,255,0.15);color:#fff;border:1.5px solid rgba(255,255,255,0.3);border-radius:var(--radius-sm);padding:3px 8px;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;}
+.project-header select option{background:var(--navy);}
+.owner-tag{display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,0.15);border:1.5px solid rgba(255,255,255,0.3);border-radius:20px;padding:3px 10px;font-size:12px;font-weight:500;color:#fff;}
+
+/* TABS */
+.tabs{display:flex;border-bottom:2px solid var(--border);background:#fff;}
+.tab{padding:10px 16px;font-weight:600;font-size:12px;cursor:pointer;color:var(--text-muted);border-bottom:2px solid transparent;margin-bottom:-2px;border:none;background:none;font-family:inherit;transition:all 0.15s;}
+.tab:hover{color:var(--text-primary);background:var(--bg-subtle);}
+.tab.active{color:var(--navy);border-bottom:2px solid var(--yellow);background:#fff;}
+.tab-content{display:none;padding:18px;}
+.tab-content.active{display:block;}
+
+/* CARDS */
+.section-card{background:#fff;border:1px solid var(--border);border-radius:var(--radius-md);padding:18px;margin-bottom:14px;}
+.section-title{font-size:14px;font-weight:700;color:var(--navy);margin-bottom:12px;display:flex;align-items:center;gap:7px;}
+
+/* PANEL KPIS */
+.panel-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px;margin-bottom:14px;}
+.panel-kpi{background:#fff;border:1px solid var(--border);border-radius:var(--radius-md);padding:14px;text-align:center;}
+.panel-kpi-value{font-size:26px;font-weight:700;color:var(--navy);}
+.panel-kpi-label{font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;margin-top:3px;}
+.task-status-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px;}
+.task-status-card{background:var(--bg-subtle);border-radius:var(--radius-sm);padding:12px;text-align:center;}
+.task-status-count{font-size:20px;font-weight:700;}
+.task-status-label{font-size:10px;color:var(--text-secondary);margin-top:2px;}
+
+/* FEED */
+.feed-item{padding:10px 12px;background:var(--bg-base);border-left:3px solid var(--yellow);border-radius:var(--radius-sm);margin-bottom:7px;}
+.feed-item-project{font-size:11px;font-weight:700;color:var(--navy);}
+.feed-item-task{font-size:11px;color:var(--text-secondary);margin-top:1px;}
+.feed-item-text{font-size:12px;color:var(--text-primary);line-height:1.5;margin-top:4px;}
+.feed-item-ts{font-size:10px;color:var(--text-muted);margin-top:3px;}
+
+/* OWNERS ROW */
+.owners-grid{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;}
+.owner-chip{display:inline-flex;align-items:center;gap:5px;background:var(--info-bg);color:var(--info);border-radius:20px;padding:3px 10px;font-size:12px;font-weight:500;}
+.owner-chip-remove{cursor:pointer;font-size:14px;font-weight:700;}
+.owner-chip-remove:hover{color:var(--error);}
+.owner-add-row{display:flex;gap:6px;}
+.owner-add-row select{flex:1;background:#fff;border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:7px 10px;font-size:12px;color:var(--text-primary);font-family:inherit;cursor:pointer;}
+.owner-add-row select:focus{outline:none;border-color:var(--yellow);}
+
+/* DEP */
+.dep-tags{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px;min-height:22px;}
+.dep-tag{display:inline-flex;align-items:center;gap:5px;padding:3px 8px;background:var(--info-bg);color:var(--info);border-radius:20px;font-size:11px;font-weight:500;}
+.dep-remove{cursor:pointer;font-size:14px;font-weight:700;}
+.dep-remove:hover{color:var(--error);}
+.dep-row{display:flex;gap:6px;}
+.dep-row select{flex:1;background:#fff;border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:7px 10px;font-size:12px;color:var(--text-primary);font-family:inherit;cursor:pointer;}
+.dep-row select:focus{outline:none;border-color:var(--yellow);}
+
+/* BACKLOG */
+.backlog-list{display:flex;flex-direction:column;gap:7px;margin-bottom:12px;}
+.backlog-item{border:1.5px solid var(--border);border-radius:var(--radius-sm);overflow:hidden;}
+.backlog-item.flagged{border-color:var(--error);}
+.backlog-item-header{padding:10px 12px;background:var(--bg-subtle);display:flex;justify-content:space-between;align-items:center;}
+.backlog-item-left{flex:1;cursor:pointer;}
+.backlog-item-title{font-weight:600;color:var(--text-primary);font-size:13px;display:flex;align-items:center;gap:6px;}
+.backlog-item-meta{display:flex;gap:5px;margin-top:3px;align-items:center;flex-wrap:wrap;}
+.backlog-item-right{display:flex;gap:5px;align-items:center;}
+.task-status-select{background:#fff;border:1.5px solid var(--border);border-radius:20px;padding:2px 7px;font-size:10px;font-weight:600;cursor:pointer;font-family:inherit;color:var(--text-secondary);}
+.task-status-select:focus{outline:none;border-color:var(--yellow);}
+.backlog-item-body{display:none;padding:12px;background:#fff;border-top:1px solid var(--border);}
+.backlog-item.expanded .backlog-item-body{display:block;}
+
+/* FORM */
+.input-label{display:block;font-size:11px;font-weight:500;color:var(--text-secondary);margin-bottom:4px;}
+.input{width:100%;background:#fff;border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:8px 12px;font-size:13px;color:var(--text-primary);font-family:inherit;}
+.input:focus{outline:none;border-color:var(--yellow);box-shadow:0 0 0 3px rgba(255,188,0,0.12);}
+textarea.input{min-height:70px;resize:vertical;}
+.input::placeholder{color:var(--text-muted);}
+.form-row{display:flex;gap:8px;margin-bottom:10px;}
+.form-row>div{flex:1;}
+.update-actions{display:flex;gap:6px;margin-top:7px;}
+.update-form{margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid var(--border-light);}
+
+/* HISTORY */
+.history-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-muted);margin-bottom:8px;margin-top:12px;}
+.history-item{padding:9px 11px;background:var(--bg-base);border-left:3px solid var(--yellow);border-radius:var(--radius-sm);margin-bottom:6px;}
+.history-ts{font-size:10px;color:var(--text-muted);margin-bottom:2px;}
+.history-text{color:var(--text-primary);font-size:12px;line-height:1.5;}
+.history-empty{color:var(--text-muted);font-size:12px;font-style:italic;}
+.add-item-btn{width:100%;padding:10px;background:var(--bg-subtle);border:1.5px dashed var(--border);border-radius:var(--radius-sm);color:var(--text-secondary);font-weight:600;cursor:pointer;font-family:inherit;font-size:12px;}
+.add-item-btn:hover{background:var(--bg-hover);border-color:var(--yellow);color:var(--navy);}
+.backlog-empty{text-align:center;padding:18px;color:var(--text-muted);font-size:12px;}
+
+/* CHANGELOG */
+.changelog-item{padding:10px 12px;background:var(--bg-base);border-left:3px solid var(--border);border-radius:var(--radius-sm);margin-bottom:7px;}
+.changelog-item.type-status{border-left-color:var(--warning);}
+.changelog-item.type-dep{border-left-color:var(--info);}
+.changelog-item.type-desc{border-left-color:var(--success);}
+.changelog-item.type-task{border-left-color:var(--yellow);}
+.changelog-item.type-owner{border-left-color:#9B59B6;}
+.changelog-ts{font-size:10px;color:var(--text-muted);margin-bottom:2px;}
+.changelog-text{font-size:12px;color:var(--text-primary);line-height:1.5;}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(13,39,114,0.45);display:none;align-items:center;justify-content:center;z-index:300;}
+.modal-overlay.active{display:flex;}
+.modal{background:#fff;border-radius:var(--radius-md);box-shadow:var(--shadow-lg);width:90%;max-width:500px;max-height:88vh;overflow-y:auto;}
+.modal-header{padding:16px 20px;border-bottom:1px solid var(--border);}
+.modal-title{font-size:15px;font-weight:700;color:var(--navy);}
+.modal-body{padding:20px;display:flex;flex-direction:column;gap:12px;}
+.modal-footer{padding:12px 20px;border-top:1px solid var(--border);display:flex;gap:7px;justify-content:flex-end;}
+
+/* GANTT */
+.gantt-empty{text-align:center;padding:28px;color:var(--text-muted);font-size:13px;line-height:1.7;}
+.gantt-legend{display:flex;gap:14px;margin-bottom:12px;flex-wrap:wrap;}
+.gantt-legend-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text-secondary);}
+.gantt-legend-dot{width:12px;height:12px;border-radius:3px;flex-shrink:0;}
+.g-outer{display:flex;border:1px solid var(--border);border-radius:var(--radius-sm);overflow:hidden;}
+.g-labels{width:180px;min-width:180px;flex-shrink:0;border-right:2px solid var(--border);}
+.g-labels-head{height:44px;border-bottom:2px solid var(--border);background:var(--bg-subtle);display:flex;align-items:center;padding:0 10px;font-size:10px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;}
+.g-label-row{height:40px;display:flex;flex-direction:column;justify-content:center;padding:0 10px;border-bottom:1px solid var(--border-light);overflow:hidden;}
+.g-label-name{font-size:12px;font-weight:600;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.g-label-sub{font-size:10px;color:var(--text-muted);margin-top:1px;display:flex;gap:4px;flex-wrap:wrap;}
+.g-label-proj{height:28px;display:flex;align-items:center;padding:0 10px;background:var(--bg-subtle);border-bottom:1px solid var(--border);font-size:11px;font-weight:700;color:var(--navy);}
+.g-chart-wrap{flex:1;overflow-x:auto;}
+.g-chart{position:relative;min-width:100%;}
+.g-head-months{display:flex;border-bottom:1px solid var(--border);background:var(--bg-subtle);}
+.g-head-month{padding:4px 8px;font-size:11px;font-weight:700;color:var(--navy);border-right:1px solid var(--border-light);white-space:nowrap;flex-shrink:0;}
+.g-head-days{display:flex;border-bottom:2px solid var(--border);background:var(--bg-subtle);}
+.g-head-day{width:28px;min-width:28px;text-align:center;font-size:9px;font-weight:500;color:var(--text-muted);padding:3px 0;border-right:1px solid var(--border-light);flex-shrink:0;}
+.g-head-day.is-today{color:var(--yellow-dark);font-weight:700;background:rgba(255,188,0,0.12);}
+.g-head-day.is-wknd{color:var(--border-light);}
+.g-bar-row{height:40px;position:relative;border-bottom:1px solid var(--border-light);display:flex;align-items:center;}
+.g-bar-row-proj{height:28px;background:var(--bg-subtle);border-bottom:1px solid var(--border);}
+.g-day-col{position:absolute;top:0;bottom:0;width:28px;border-right:1px solid var(--border-light);}
+.g-day-col.is-today{background:rgba(255,188,0,0.06);}
+.g-today-line{position:absolute;top:0;bottom:0;width:2px;background:var(--yellow);z-index:3;pointer-events:none;}
+.g-bar{position:absolute;height:16px;top:50%;transform:translateY(-50%);border-radius:4px;z-index:2;min-width:8px;}
+.g-bar.clr-run{background:var(--navy-mid);}
+.g-bar.clr-done{background:var(--success);}
+.g-bar.clr-late{background:var(--error);}
+
+.member-list{display:flex;flex-direction:column;gap:6px;margin-bottom:10px;}
+.member-row{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:var(--bg-subtle);border-radius:var(--radius-sm);}
+.member-name{font-weight:600;font-size:13px;}
+.member-role{font-size:11px;color:var(--text-muted);}
+
+/* EXEC */
+.exec-wrap{flex:1;overflow-y:auto;padding:24px;background:var(--bg-base);}
+.exec-header{background:linear-gradient(135deg,var(--navy),var(--navy-mid));border-radius:var(--radius-md);padding:24px 28px;margin-bottom:18px;color:#fff;}
+.exec-header h1{font-size:22px;font-weight:700;margin-bottom:3px;}
+.exec-header p{color:rgba(255,255,255,0.65);font-size:12px;}
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-bottom:18px;}
+.kpi-card{background:#fff;border:1px solid var(--border);border-radius:var(--radius-md);padding:16px;box-shadow:var(--shadow-sm);}
+.kpi-value{font-size:28px;font-weight:700;color:var(--navy);line-height:1;}
+.kpi-label{font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;margin-top:4px;}
+.kpi-sub{font-size:11px;color:var(--text-secondary);margin-top:2px;}
+.exec-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px;}
+.exec-card{background:#fff;border:1px solid var(--border);border-radius:var(--radius-md);padding:18px;box-shadow:var(--shadow-sm);}
+.exec-card-title{font-size:13px;font-weight:700;color:var(--navy);margin-bottom:12px;}
+.sbar-row{margin-bottom:9px;}
+.sbar-labels{display:flex;justify-content:space-between;margin-bottom:2px;font-size:12px;}
+.sbar-track{background:var(--bg-subtle);border-radius:4px;height:6px;overflow:hidden;}
+.sbar-fill{height:100%;border-radius:4px;}
+.proj-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border-light);}
+.proj-row:last-child{border-bottom:none;}
+.proj-row-left{display:flex;align-items:center;gap:8px;}
+.proj-row-num{font-size:10px;font-weight:700;color:var(--text-muted);min-width:24px;}
+.proj-row-name{font-size:12px;font-weight:600;color:var(--text-primary);}
+.proj-row-right{display:flex;align-items:center;gap:6px;}
+.mini-bar{width:50px;height:5px;background:var(--bg-subtle);border-radius:3px;overflow:hidden;}
+.mini-bar-fill{height:100%;background:var(--yellow);border-radius:3px;}
+.gap-item{padding:8px 10px;background:var(--warning-bg);border-left:3px solid var(--warning);border-radius:var(--radius-sm);margin-bottom:6px;}
+.gap-item-name{font-size:12px;font-weight:600;}
+.gap-item-sub{font-size:10px;color:var(--text-secondary);margin-top:1px;}
+.blocked-item{padding:8px 10px;background:var(--error-bg);border-left:3px solid var(--error);border-radius:var(--radius-sm);margin-bottom:6px;}
+.blocked-item-name{font-size:12px;font-weight:600;}
+.blocked-item-dep{font-size:11px;color:var(--text-secondary);margin-top:2px;}
+.big-cols{display:flex;gap:10px;}
+.big-col{flex:1;background:var(--bg-subtle);border-radius:var(--radius-sm);padding:12px;}
+.big-col-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:7px;}
+.big-col-value{font-size:24px;font-weight:700;color:var(--navy);margin-bottom:2px;}
+.big-col-sub{font-size:11px;color:var(--text-secondary);}
+.big-col-rows{margin-top:8px;display:flex;flex-direction:column;gap:2px;}
+.big-col-row{display:flex;justify-content:space-between;font-size:11px;}
+
+/* EXEC CHANGELOG FILTERS */
+.exec-cl-filters{display:flex;gap:10px;align-items:center;margin-bottom:14px;flex-wrap:wrap;}
+.exec-cl-filters label{font-size:11px;font-weight:600;color:var(--text-secondary);}
+.exec-cl-filters input[type=date]{border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:5px 10px;font-size:12px;font-family:inherit;color:var(--text-primary);}
+.exec-cl-filters input[type=date]:focus{outline:none;border-color:var(--yellow);}
+.exec-cl-filters select{border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:5px 10px;font-size:12px;font-family:inherit;color:var(--text-primary);background:#fff;cursor:pointer;}
+.exec-cl-item{padding:10px 12px;background:var(--bg-base);border-left:3px solid var(--border);border-radius:var(--radius-sm);margin-bottom:7px;}
+.exec-cl-item.type-status{border-left-color:var(--warning);}
+.exec-cl-item.type-dep{border-left-color:var(--info);}
+.exec-cl-item.type-desc{border-left-color:var(--success);}
+.exec-cl-item.type-task{border-left-color:var(--yellow);}
+.exec-cl-item.type-owner{border-left-color:#9B59B6;}
+.exec-cl-project{font-size:11px;font-weight:700;color:var(--navy);margin-bottom:2px;}
+.exec-cl-text{font-size:12px;color:var(--text-primary);line-height:1.5;}
+.exec-cl-ts{font-size:10px;color:var(--text-muted);margin-top:3px;}
+</style>
+</head>
+<body>
+
+<!-- LOCK -->
+<div class="lock-screen" id="lockScreen">
+  <div class="lock-box">
+    <div class="lock-icon">🔒</div>
+    <div class="lock-logo">eduzz</div>
+    <div class="lock-sub">Backlog Tático IOP · Acesso restrito</div>
+    <input class="lock-input" type="password" id="lockInput" placeholder="Digite a senha" onkeydown="if(event.key==='Enter')checkPass()">
+    <button class="lock-btn" onclick="checkPass()">Entrar</button>
+    <div class="lock-error" id="lockError">Senha incorreta.</div>
+  </div>
+</div>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-left">
+    <div class="logo">eduzz</div>
+    <div style="font-size:13px;font-weight:600;color:var(--text-secondary);">Backlog Tático IOP</div>
+  </div>
+  <div class="header-right">
+    <button class="nav-btn active" onclick="showPage('projects',this)">Projetos</button>
+    <button class="nav-btn" onclick="showPage('exec',this)">Painel Executivo</button>
+    <span id="syncStatus" style="font-size:11px;font-weight:600;color:var(--text-muted);padding:0 4px;">Carregando...</span>
+    <button class="btn btn-secondary" onclick="openModal('membersModal')">👥 Time</button>
+    <button class="btn btn-secondary" onclick="doExportCSV()">📊 CSV</button>
+    <button class="btn btn-secondary" onclick="doExportJSON()">💾 JSON</button>
+    <button class="btn btn-secondary" onclick="triggerImport()">📥 Importar</button>
+    <input type="file" id="importInput" accept=".json" style="display:none" onchange="importData(event)">
+    <button class="btn btn-primary" onclick="openModal('addProjectModal')">+ Projeto</button>
+  </div>
+</div>
+
+<div class="layout">
+  <!-- PROJETOS -->
+  <div class="page active" id="page-projects">
+    <div class="sidebar">
+      <div>
+        <div class="filter-label">Big</div>
+        <div class="filter-buttons">
+          <button class="filter-btn active" onclick="setFilter('big','all',this)">Todos</button>
+          <button class="filter-btn" onclick="setFilter('big','big1',this)">Big 1</button>
+          <button class="filter-btn" onclick="setFilter('big','big2',this)">Big 2</button>
+        </div>
+      </div>
+      <div>
+        <div class="filter-label">Status</div>
+        <div class="filter-buttons">
+          <button class="filter-btn active" onclick="setFilter('status','all',this)">Todos</button>
+          <button class="filter-btn" onclick="setFilter('status','not-started',this)">Não iniciado</button>
+          <button class="filter-btn" onclick="setFilter('status','in-progress',this)">Em andamento</button>
+          <button class="filter-btn" onclick="setFilter('status','blocked',this)">Bloqueado</button>
+          <button class="filter-btn" onclick="setFilter('status','done',this)">Concluído</button>
+        </div>
+      </div>
+      <div>
+        <div class="filter-label">Projetos</div>
+        <div class="project-list" id="projectList"></div>
+      </div>
+    </div>
+    <div class="main">
+      <div class="empty-state" id="emptyState">
+        <div style="font-size:44px;margin-bottom:12px;">📋</div>
+        <h3>Selecione um projeto</h3>
+        <p>ou adicione um novo pelo botão acima</p>
+      </div>
+      <div id="projectDetail" style="display:none;max-width:900px;margin:0 auto;"></div>
+    </div>
+  </div>
+
+  <!-- EXEC -->
+  <div class="page" id="page-exec">
+    <div class="exec-wrap" id="execContent"></div>
+  </div>
+</div>
+
+<!-- MODAL MEMBROS DO TIME -->
+<div class="modal-overlay" id="membersModal">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title">👥 Membros do Time</div></div>
+    <div class="modal-body">
+      <div class="member-list" id="memberList"></div>
+      <div style="display:flex;gap:8px;">
+        <input type="text" class="input" id="newMemberName" placeholder="Nome do membro" style="flex:2;">
+        <input type="text" class="input" id="newMemberRole" placeholder="Papel (ex: CS Ops)" style="flex:2;">
+        <button class="btn btn-primary" onclick="addMember()">+</button>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" onclick="closeModal('membersModal')">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL NOVO PROJETO -->
+<div class="modal-overlay" id="addProjectModal">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title">Novo Projeto</div></div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div><label class="input-label">Número</label><input type="number" class="input" id="np_number" placeholder="Ex: 1"></div>
+        <div style="flex:3;"><label class="input-label">Nome</label><input type="text" class="input" id="np_name" placeholder="Ex: Implantação Botpress"></div>
+      </div>
+      <div class="form-row">
+        <div><label class="input-label">Big</label>
+          <select class="input" id="np_big">
+            <option value="big1">Big 1 — Customer Support 2.0</option>
+            <option value="big2">Big 2 — Client Facing</option>
+          </select>
+        </div>
+        <div><label class="input-label">Status</label>
+          <select class="input" id="np_status">
+            <option value="not-started">Não iniciado</option>
+            <option value="in-progress">Em andamento</option>
+            <option value="blocked">Bloqueado</option>
+            <option value="done">Concluído</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div><label class="input-label">Mês</label><input type="text" class="input" id="np_month" placeholder="Ex: Jun"></div>
+        <div><label class="input-label">Ano</label><input type="number" class="input" id="np_year" placeholder="2026"></div>
+        <div style="flex:2;"><label class="input-label">Responsável</label>
+          <select class="input" id="np_owner"><option value="">Sem responsável</option></select>
+        </div>
+      </div>
+      <div><label class="input-label">Descrição / Briefing</label><textarea class="input" id="np_desc" placeholder="Contexto, objetivo, escopo..." style="min-height:90px;"></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('addProjectModal')">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveProject()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL CONFIRMAÇÃO -->
+<div class="modal-overlay" id="confirmModal">
+  <div class="modal" style="max-width:360px;">
+    <div class="modal-header"><div class="modal-title" id="confirmTitle">Confirmar</div></div>
+    <div class="modal-body"><div id="confirmMsg" style="font-size:14px;color:var(--text-secondary);"></div></div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('confirmModal')">Cancelar</button>
+      <button class="btn btn-primary" id="confirmOkBtn" style="background:var(--error);color:#fff;">Excluir</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL NOVO ITEM BACKLOG -->
+<div class="modal-overlay" id="addBacklogModal">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title">Novo Item do Backlog</div></div>
+    <div class="modal-body">
+      <div><label class="input-label">Título da Task</label><input type="text" class="input" id="nb_title" placeholder="Ex: Configurar ambiente de homologação"></div>
+      <div><label class="input-label">Responsável</label>
+        <select class="input" id="nb_owner"><option value="">Sem responsável</option></select>
+      </div>
+      <div><label class="input-label">Descrição</label><textarea class="input" id="nb_desc" placeholder="Detalhes, contexto, critérios..." style="min-height:80px;"></textarea></div>
+      <div style="display:flex;gap:10px;"><div style="flex:1;"><label class="input-label">Data de Início</label><input type="date" class="input" id="nb_date_plan"></div><div style="flex:1;"><label class="input-label">Data de Conclusão</label><input type="date" class="input" id="nb_date_real"></div></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('addBacklogModal')">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveBacklogItem()">Adicionar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─── STATE ────────────────────────────────────────────────────────────────────
+const STATE = {
+  projects: [],
+  members: [],
+  currentId: null,
+  currentTab: 'panel',
+  filter: { big:'all', status:'all' }
+};
+
+const SM = {
+  'not-started': { label:'Não iniciado', cls:'badge-not-started', color:'#8A92B2' },
+  'in-progress':  { label:'Em andamento', cls:'badge-in-progress', color:'#FF9500' },
+  'blocked':      { label:'Bloqueado',    cls:'badge-blocked',    color:'#E5343A' },
+  'done':         { label:'Concluído',    cls:'badge-done',       color:'#1DB87A' }
+};
+
+const TYPE_ICON = { status:'🔄', dep:'🔗', desc:'📝', task:'📋', owner:'👤' };
+
+// ─── PERSIST ─────────────────────────────────────────────────────────────────
+// ─── SUPABASE CONFIG ─────────────────────────────────────────────────────────
+const SB_URL  = 'https://hqzqyaltvdzqxqiviepy.supabase.co';
+const SB_KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhxenF5YWx0dmR6cXhxaXZpZXB5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg3Nzk1MTgsImV4cCI6MjA5NDM1NTUxOH0.xgDg4FBIYTazEy1H0sNujO2ISUa4wr3K8Z3oDkySqV8';
+const SB_HEADERS = { 'Content-Type':'application/json', 'apikey': SB_KEY, 'Authorization': 'Bearer '+SB_KEY };
+
+let saveTimer = null;
+let isSaving  = false;
+
+function setSyncStatus(status) {
+  const el = document.getElementById('syncStatus');
+  if (!el) return;
+  const map = {
+    saving:  { text:'Salvando...', color:'var(--warning)' },
+    saved:   { text:'✓ Salvo',     color:'var(--success)' },
+    error:   { text:'⚠ Erro ao salvar', color:'var(--error)' },
+    loading: { text:'Carregando...', color:'var(--text-muted)' },
+    offline: { text:'Sem conexão', color:'var(--error)' }
+  };
+  const s = map[status] || map.saved;
+  el.textContent = s.text;
+  el.style.color = s.color;
+}
+
+async function sbFetch(path, opts={}) {
+  const res = await fetch(SB_URL + '/rest/v1/' + path, {
+    ...opts,
+    headers: { ...SB_HEADERS, ...(opts.headers||{}) }
+  });
+  if (!res.ok) throw new Error(await res.text());
+  const txt = await res.text();
+  return txt ? JSON.parse(txt) : null;
+}
+
+async function save() {
+  // Salva no localStorage como fallback imediato
+  localStorage.setItem('iop_v6', JSON.stringify({ projects: STATE.projects, members: STATE.members }));
+
+  // Debounce: só chama o Supabase 800ms após a última alteração
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(async () => {
+    if (isSaving) return;
+    isSaving = true;
+    setSyncStatus('saving');
+    try {
+      // Upsert projects como um único registro JSON
+      await sbFetch('projects?id=eq.main', {
+        method: 'DELETE'
+      });
+      await sbFetch('projects', {
+        method: 'POST',
+        body: JSON.stringify({ id: 'main', data: STATE.projects })
+      });
+      // Upsert members
+      await sbFetch('members?id=eq.main', {
+        method: 'DELETE'
+      });
+      await sbFetch('members', {
+        method: 'POST',
+        body: JSON.stringify({ id: 'main', data: STATE.members })
+      });
+      setSyncStatus('saved');
+      setTimeout(() => setSyncStatus('saved'), 2000);
+    } catch(e) {
+      console.error('Supabase save error:', e);
+      setSyncStatus('error');
+    } finally {
+      isSaving = false;
+    }
+  }, 800);
+}
+
+async function load() {
+  setSyncStatus('loading');
+  try {
+    const [projRes, membRes] = await Promise.all([
+      sbFetch('projects?id=eq.main'),
+      sbFetch('members?id=eq.main')
+    ]);
+    if (projRes && projRes.length > 0) {
+      STATE.projects = projRes[0].data || [];
+    } else {
+      // fallback localStorage
+      const raw = localStorage.getItem('iop_v6');
+      if (raw) {
+        const d = JSON.parse(raw);
+        STATE.projects = d.projects || [];
+      }
+    }
+    if (membRes && membRes.length > 0) {
+      STATE.members = membRes[0].data || [];
+    } else {
+      const raw = localStorage.getItem('iop_v6');
+      if (raw) {
+        const d = JSON.parse(raw);
+        STATE.members = d.members || [];
+      }
+    }
+    setSyncStatus('saved');
+  } catch(e) {
+    console.error('Supabase load error:', e);
+    setSyncStatus('offline');
+    // fallback localStorage
+    const raw = localStorage.getItem('iop_v6');
+    if (raw) {
+      try {
+        const d = JSON.parse(raw);
+        STATE.projects = d.projects || [];
+        STATE.members  = d.members  || [];
+      } catch(e2){}
+    }
+  }
+}
+
+// ─── AUTH ─────────────────────────────────────────────────────────────────────
+async function checkPass() {
+  const v = document.getElementById('lockInput').value;
+  if (v === 'eduzz2026') {
+    sessionStorage.setItem('iop_auth','1');
+    document.getElementById('lockScreen').style.display = 'none';
+    await load();
+    renderSidebar();
+  } else {
+    const e = document.getElementById('lockError');
+    e.style.display = 'block';
+    document.getElementById('lockInput').value = '';
+    document.getElementById('lockInput').focus();
+    setTimeout(() => e.style.display = 'none', 3000);
+  }
+}
+
+// ─── NAVIGATION ───────────────────────────────────────────────────────────────
+function showPage(pg, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-' + pg).classList.add('active');
+  btn.classList.add('active');
+  if (pg === 'exec') renderExec();
+}
+
+function showTab(tab) {
+  STATE.currentTab = tab;
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  document.getElementById('tab-btn-' + tab).classList.add('active');
+  document.getElementById('tab-' + tab).classList.add('active');
+}
+
+// ─── CONFIRM MODAL ───────────────────────────────────────────────────────────
+function confirmAction(msg, onOk, label) {
+  document.getElementById('confirmMsg').textContent = msg;
+  document.getElementById('confirmTitle').textContent = label || 'Confirmar';
+  const btn = document.getElementById('confirmOkBtn');
+  btn.textContent = label || 'Confirmar';
+  btn.style.background = label === 'Importar' ? 'var(--warning)' : 'var(--error)';
+  btn.onclick = () => { closeModal('confirmModal'); onOk(); };
+  openModal('confirmModal');
+}
+
+// ─── CHANGELOG ────────────────────────────────────────────────────────────────
+function addLog(p, type, text) {
+  if (!p.changelog) p.changelog = [];
+  p.changelog.unshift({ ts: now(), type, text });
+}
+
+// ─── MEMBERS ─────────────────────────────────────────────────────────────────
+function renderMemberList() {
+  const list = document.getElementById('memberList');
+  if (!list) return;
+  if (!STATE.members.length) { list.innerHTML = '<div style="color:var(--text-muted);font-size:12px;text-align:center;padding:8px;">Nenhum membro cadastrado</div>'; return; }
+  list.innerHTML = STATE.members.map((m,i) => `
+    <div class="member-row">
+      <div><div class="member-name">${m.name}</div><div class="member-role">${m.role||''}</div></div>
+      <button class="btn-danger-sm" onclick="removeMember(${i})">Remover</button>
+    </div>`).join('');
+}
+
+function addMember() {
+  const name = document.getElementById('newMemberName').value.trim();
+  if (!name) return;
+  const role = document.getElementById('newMemberRole').value.trim();
+  STATE.members.push({ id: uid(), name, role });
+  document.getElementById('newMemberName').value = '';
+  document.getElementById('newMemberRole').value = '';
+  save();
+  renderMemberList();
+}
+
+function removeMember(idx) {
+  STATE.members.splice(idx, 1);
+  save();
+  renderMemberList();
+}
+
+function ownerOptions(selected) {
+  return `<option value="">Sem responsável</option>` +
+    STATE.members.map(m => `<option value="${m.id}" ${selected===m.id?'selected':''}>${m.name}</option>`).join('');
+}
+
+function memberName(id) {
+  if (!id) return '';
+  const m = STATE.members.find(x => x.id === id);
+  return m ? m.name : '';
+}
+
+// ─── FILTERS ─────────────────────────────────────────────────────────────────
+function setFilter(type, val, btn) {
+  STATE.filter[type] = val;
+  btn.parentElement.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderSidebar();
+}
+
+// ─── SIDEBAR ─────────────────────────────────────────────────────────────────
+function renderSidebar() {
+  const list = document.getElementById('projectList');
+  const filtered = STATE.projects.filter(p =>
+    (STATE.filter.big === 'all' || p.big === STATE.filter.big) &&
+    (STATE.filter.status === 'all' || p.status === STATE.filter.status)
+  );
+  if (!filtered.length) { list.innerHTML = '<div style="text-align:center;padding:14px;color:var(--text-muted);font-size:11px;">Nenhum projeto encontrado</div>'; return; }
+  list.innerHTML = filtered.map(p => {
+    const st = SM[p.status] || SM['not-started'];
+    const total = p.backlog ? p.backlog.length : 0;
+    const done  = p.backlog ? p.backlog.filter(i => i.status==='done').length : 0;
+    const flags = p.backlog ? p.backlog.filter(i => i.flagged).length : 0;
+    const owner = memberName(p.owner);
+    return `<div class="project-item ${STATE.currentId===p.id?'active':''}" onclick="selectProject('${p.id}')">
+      <div class="project-num">#${p.number}${p.month?' · '+p.month:''}</div>
+      <div class="project-name">${flags>0?'🚩 ':''}${p.name}</div>
+      <div class="project-meta">
+        <span class="badge ${p.big==='big1'?'badge-big1':'badge-big2'}">${p.big==='big1'?'Big 1':'Big 2'}</span>
+        <span class="badge ${st.cls}">${st.label}</span>
+        ${owner?`<span style="font-size:10px;color:var(--text-muted);">👤${owner}</span>`:''}
+      </div>
+      ${total>0?`<div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:${Math.round((done/total)*100)}%"></div></div><div style="font-size:10px;color:var(--text-muted);margin-top:3px;">${done}/${total} concluídos${flags>0?' · 🚩'+flags+' atenção':''}</div>`:''}
+    </div>`;
+  }).join('');
+}
+
+function selectProject(id) {
+  STATE.currentId = id;
+  STATE.currentTab = 'panel';
+  renderSidebar();
+  renderDetail();
+}
+
+// ─── DETAIL ──────────────────────────────────────────────────────────────────
+function renderDetail() {
+  const p = STATE.projects.find(x => x.id === STATE.currentId);
+  if (!p) return;
+  document.getElementById('emptyState').style.display = 'none';
+  const detail = document.getElementById('projectDetail');
+  detail.style.display = 'block';
+  const owner = memberName(p.owner);
+
+  detail.innerHTML = `
+    <div class="project-header">
+      <div class="project-header-num">#${p.number}${p.month?' · '+p.month:''}</div>
+      <div class="project-header-title">${p.name}</div>
+      <div class="project-header-meta">
+        <span class="badge ${p.big==='big1'?'badge-big1':'badge-big2'}">${p.big==='big1'?'Big 1':'Big 2'}</span>
+        <select onchange="changeStatus('${p.id}',this.value)">
+          ${Object.entries(SM).map(([k,v])=>`<option value="${k}" ${p.status===k?'selected':''}>${v.label}</option>`).join('')}
+        </select>
+        ${owner?`<span class="owner-tag">👤 ${owner}</span>`:''}
+      </div>
+    </div>
+    <div style="background:#fff;border:1px solid var(--border);border-top:none;border-radius:0 0 var(--radius-md) var(--radius-md);margin-bottom:14px;">
+      <div class="tabs">
+        <button class="tab ${STATE.currentTab==='panel'?'active':''}" id="tab-btn-panel" onclick="showTab('panel')">📊 Painel</button>
+        <button class="tab ${STATE.currentTab==='backlog'?'active':''}" id="tab-btn-backlog" onclick="showTab('backlog')">📋 Backlog</button>
+        <button class="tab ${STATE.currentTab==='deps'?'active':''}" id="tab-btn-deps" onclick="showTab('deps')">🔗 Deps</button>
+        <button class="tab ${STATE.currentTab==='desc'?'active':''}" id="tab-btn-desc" onclick="showTab('desc')">📝 Descrição</button>
+        <button class="tab ${STATE.currentTab==='owners'?'active':''}" id="tab-btn-owners" onclick="showTab('owners')">👤 Responsável</button>
+        <button class="tab ${STATE.currentTab==='timeline'?'active':''}" id="tab-btn-timeline" onclick="showTab('timeline')">📅 Timeline</button>
+        <button class="tab ${STATE.currentTab==='changelog'?'active':''}" id="tab-btn-changelog" onclick="showTab('changelog')">🔄 Changelog</button>
+      </div>
+      <div id="tab-panel" class="tab-content ${STATE.currentTab==='panel'?'active':''}">${tabPanel(p)}</div>
+      <div id="tab-backlog" class="tab-content ${STATE.currentTab==='backlog'?'active':''}">${tabBacklog(p)}</div>
+      <div id="tab-deps" class="tab-content ${STATE.currentTab==='deps'?'active':''}">${tabDeps(p)}</div>
+      <div id="tab-desc" class="tab-content ${STATE.currentTab==='desc'?'active':''}">${tabDesc(p)}</div>
+      <div id="tab-owners" class="tab-content ${STATE.currentTab==='owners'?'active':''}">${tabOwners(p)}</div>
+      <div id="tab-timeline" class="tab-content ${STATE.currentTab==='timeline'?'active':''}">${tabTimeline(p)}</div>
+      <div id="tab-changelog" class="tab-content ${STATE.currentTab==='changelog'?'active':''}">${tabChangelog(p)}</div>
+    </div>`;
+}
+
+// ── TAB PAINEL ───────────────────────────────────────────────────────────────
+function tabPanel(p) {
+  const bl = p.backlog || [];
+  const total = bl.length;
+  const byS = {'not-started':0,'in-progress':0,'blocked':0,'done':0};
+  bl.forEach(i => { byS[i.status||'not-started']++; });
+  const done = byS['done'];
+  const flags = bl.filter(i=>i.flagged).length;
+  const feed = [];
+  bl.forEach(item => (item.updates||[]).forEach(u => feed.push({ts:u.ts,text:u.text,task:item.title})));
+  feed.sort((a,b)=>parseTs(b.ts)-parseTs(a.ts));
+
+  return `
+    <div class="panel-kpis">
+      <div class="panel-kpi"><div class="panel-kpi-value">${total}</div><div class="panel-kpi-label">Tasks</div></div>
+      <div class="panel-kpi"><div class="panel-kpi-value" style="color:var(--success);">${done}</div><div class="panel-kpi-label">Concluídas</div></div>
+      <div class="panel-kpi"><div class="panel-kpi-value" style="color:var(--warning);">${byS['in-progress']}</div><div class="panel-kpi-label">Em andamento</div></div>
+      <div class="panel-kpi"><div class="panel-kpi-value" style="color:var(--error);">${byS['blocked']}</div><div class="panel-kpi-label">Bloqueadas</div></div>
+      <div class="panel-kpi"><div class="panel-kpi-value" style="color:var(--error);">${flags}</div><div class="panel-kpi-label">🚩 Atenção</div></div>
+      <div class="panel-kpi"><div class="panel-kpi-value" style="color:var(--navy);">${total>0?Math.round((done/total)*100):0}%</div><div class="panel-kpi-label">Progresso</div></div>
+    </div>
+    <div class="task-status-grid">
+      ${Object.entries(SM).map(([k,v])=>`<div class="task-status-card"><div class="task-status-count" style="color:${v.color};">${byS[k]}</div><div class="task-status-label">${v.label}</div></div>`).join('')}
+    </div>
+    <div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:10px;">🕐 Últimas Atualizações</div>
+    ${feed.length===0
+      ?'<div style="color:var(--text-muted);font-size:12px;font-style:italic;">Nenhuma atualização ainda.</div>'
+      :feed.map(f=>`<div class="feed-item"><div class="feed-item-task">📋 ${f.task}</div><div class="feed-item-text">${f.text}</div><div class="feed-item-ts">🕐 ${f.ts}</div></div>`).join('')}`;
+}
+
+// ── TAB BACKLOG ───────────────────────────────────────────────────────────────
+function tabBacklog(p) {
+  const bl = p.backlog || [];
+  const items = bl.length === 0
+    ? '<div class="backlog-empty">Nenhum item ainda.</div>'
+    : bl.map((item,idx) => {
+        const uc = item.updates ? item.updates.length : 0;
+        const st = SM[item.status||'not-started'];
+        const owner = memberName(item.owner);
+        return `<div class="backlog-item ${item.flagged?'flagged':''}" id="bi-${idx}">
+          <div class="backlog-item-header">
+            <div class="backlog-item-left" onclick="toggleItem(${idx})">
+              <div class="backlog-item-title">
+                ${item.flagged?'🚩':''}${item.title}
+              </div>
+              <div class="backlog-item-meta">
+                <span class="badge ${st.cls}" style="font-size:9px;">${st.label}</span>
+                ${owner?`<span style="font-size:10px;color:var(--text-muted);">👤${owner}</span>`:''}
+                ${item.datePlan?`<span style="font-size:10px;color:var(--text-muted);">▶ ${fmtDate(item.datePlan)}</span>`:''}
+                ${item.dateReal?`<span style="font-size:10px;color:var(--success);">⏹ ${fmtDate(item.dateReal)}</span>`:''}
+                <span style="font-size:10px;color:var(--text-muted);">${uc} atualiz.</span>
+              </div>
+            </div>
+            <div class="backlog-item-right">
+              <button type="button" class="flag-btn ${item.flagged?'active':''}" onclick="toggleFlag(event,${idx})" title="Flag de atenção">🚩</button>
+              <select class="task-status-select" onchange="changeTaskStatus(event,${idx})" onclick="event.stopPropagation()">
+                ${Object.entries(SM).map(([k,v])=>`<option value="${k}" ${(item.status||'not-started')===k?'selected':''}>${v.label}</option>`).join('')}
+              </select>
+              <button type="button" onclick="(function(e){e.stopPropagation();e.preventDefault();confirmAction('Remover a task &quot;'+STATE.projects.find(function(x){return x.id===STATE.currentId})?.backlog[${idx}]?.title+'&quot;?',function(){var p=STATE.projects.find(function(x){return x.id===STATE.currentId});if(!p)return;addLog(p,'task','Task removida: &quot;'+p.backlog[${idx}].title+'&quot;');p.backlog.splice(${idx},1);save();renderSidebar();STATE.currentTab='backlog';renderDetail();},'Excluir');})(event)" style="background:none;border:1.5px solid var(--border);border-radius:6px;padding:3px 9px;font-size:11px;font-weight:600;color:var(--error);cursor:pointer;font-family:inherit;">Excluir</button>
+              <span style="cursor:pointer;color:var(--text-muted);padding:2px 5px;" onclick="toggleItem(${idx})">▼</span>
+            </div>
+          </div>
+          <div class="backlog-item-body">
+            ${item.description?`<div style="background:var(--bg-subtle);border-radius:var(--radius-sm);padding:10px 12px;margin-bottom:12px;font-size:12px;color:var(--text-secondary);line-height:1.6;">${item.description}</div>`:''}
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;padding:8px 10px;background:var(--bg-subtle);border-radius:var(--radius-sm);">
+              <span style="font-size:12px;font-weight:600;color:var(--text-secondary);white-space:nowrap;">👤 Responsável</span>
+              <select style="flex:1;background:#fff;border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:5px 10px;font-size:12px;color:var(--text-primary);font-family:inherit;cursor:pointer;" onchange="changeTaskOwner(event,${idx})">
+                ${ownerOptions(item.owner)}
+              </select>
+            </div>
+            <div style="display:flex;gap:10px;margin-bottom:12px;padding:8px 10px;background:var(--bg-subtle);border-radius:var(--radius-sm);">
+              <div style="flex:1;">
+                <div style="font-size:10px;font-weight:600;color:var(--text-muted);text-transform:uppercase;margin-bottom:4px;">🟢 Data de Início</div>
+                <input type="date" style="width:100%;border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:5px 8px;font-size:12px;font-family:inherit;color:var(--text-primary);background:#fff;" value="${item.datePlan||''}" onchange="changeTaskDate(event,${idx},'datePlan')">
+              </div>
+              <div style="flex:1;">
+                <div style="font-size:10px;font-weight:600;color:var(--text-muted);text-transform:uppercase;margin-bottom:4px;">🔴 Data de Conclusão</div>
+                <input type="date" style="width:100%;border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:5px 8px;font-size:12px;font-family:inherit;color:var(--text-primary);background:#fff;" value="${item.dateReal||''}" onchange="changeTaskDate(event,${idx},'dateReal')">
+              </div>
+            </div>
+            <div class="update-form">
+              <label class="input-label">Nova atualização</label>
+              <textarea class="input" id="upd-${idx}" placeholder="Descreva progresso, decisões, bloqueios..."></textarea>
+              <div class="update-actions">
+                <button class="btn btn-primary btn-sm" onclick="addUpdate(${idx})">Salvar</button>
+                <button class="btn btn-secondary btn-sm" onclick="document.getElementById('upd-${idx}').value=''">Limpar</button>
+              </div>
+            </div>
+            <div class="history-label">Histórico</div>
+            ${uc===0?'<div class="history-empty">Nenhuma atualização ainda.</div>'
+              :[...item.updates].reverse().map(u=>`<div class="history-item"><div class="history-ts">🕐 ${u.ts}</div><div class="history-text">${u.text}</div></div>`).join('')}
+          </div>
+        </div>`;
+      }).join('');
+
+  return `<div class="backlog-list" id="backlogList">${items}</div>
+    <button class="add-item-btn" onclick="openModal('addBacklogModal')">+ Adicionar Item ao Backlog</button>`;
+}
+
+// ── TAB TIMELINE ─────────────────────────────────────────────────────────────
+function tabTimeline(p) {
+  const bl = (p.backlog||[]).filter(i => i.datePlan || i.dateReal);
+  if (!bl.length) return `<div class="gantt-empty">Nenhuma task com datas cadastradas.<br><span style="font-size:12px;">Abra uma task no Backlog e preencha Data de Início ou Conclusão.</span></div>`;
+  return buildGantt(bl.map(i => ({...i, _projName: p.name})), false);
+}
+
+function buildGantt(tasks, isPortfolio) {
+  const today = new Date(); today.setHours(0,0,0,0);
+  const DAY_W = 30;
+  const ROW_H = 44;
+  const HEAD_H = 44;
+  const LABEL_W = 160;
+
+  const allDates = [];
+  tasks.forEach(t => {
+    if (t.datePlan) allDates.push(new Date(t.datePlan+'T00:00:00'));
+    if (t.dateReal) allDates.push(new Date(t.dateReal+'T00:00:00'));
+  });
+  if (!allDates.length) return '<div class="gantt-empty">Sem datas cadastradas.</div>';
+
+  let minD = new Date(Math.min(...allDates, today));
+  let maxD = new Date(Math.max(...allDates, today));
+  minD.setDate(minD.getDate() - 3);
+  maxD.setDate(maxD.getDate() + 6);
+
+  const days = [];
+  let c = new Date(minD);
+  while (c <= maxD) { days.push(new Date(c)); c.setDate(c.getDate()+1); }
+
+  const totalW = days.length * DAY_W;
+  const todayIdx = days.findIndex(d => d.toDateString() === today.toDateString());
+
+  const months = [];
+  let lastMk = null, mStart = 0;
+  days.forEach((d,i) => {
+    const mk = d.getFullYear()+'-'+d.getMonth();
+    if (mk !== lastMk) {
+      if (lastMk !== null) months.push({label:fmtMonth(days[mStart]), count:i-mStart, start:mStart});
+      lastMk = mk; mStart = i;
+    }
+  });
+  months.push({label:fmtMonth(days[mStart]), count:days.length-mStart, start:mStart});
+
+  const dIdx = s => {
+    if (!s) return null;
+    const d = new Date(s+'T00:00:00');
+    const i = days.findIndex(x => x.toDateString()===d.toDateString());
+    return i >= 0 ? i : null;
+  };
+
+  let labelRows = `<div style="height:${HEAD_H}px;background:var(--bg-subtle);border-bottom:2px solid var(--border);display:flex;align-items:flex-end;padding:0 10px 6px;font-size:10px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;">Task</div>`;
+
+  let lastProj = null;
+  tasks.forEach(item => {
+    if (isPortfolio && item._projName !== lastProj) {
+      lastProj = item._projName;
+      labelRows += `<div style="height:28px;background:var(--bg-subtle);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 10px;font-size:11px;font-weight:700;color:var(--navy);">${item._projName}</div>`;
+    }
+    const st = SM[item.status||'not-started'];
+    const owner = memberName(item.owner);
+    labelRows += `
+      <div style="height:${ROW_H}px;border-bottom:1px solid var(--border-light);padding:6px 10px;overflow:hidden;">
+        <div style="font-size:12px;font-weight:600;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${item.flagged?'🚩 ':''}${item.title}</div>
+        <div style="display:flex;gap:4px;margin-top:3px;flex-wrap:wrap;align-items:center;">
+          <span class="badge ${st.cls}" style="font-size:9px;">${st.label}</span>
+          ${owner?`<span style="font-size:10px;color:var(--text-muted);">👤${owner}</span>`:''}
+          ${item.datePlan?`<span style="font-size:10px;color:var(--text-muted);">▶${fmtDate(item.datePlan)}</span>`:''}
+          ${item.dateReal?`<span style="font-size:10px;color:var(--text-muted);">⏹${fmtDate(item.dateReal)}</span>`:''}
+        </div>
+      </div>`;
+  });
+
+  // ── CHART COLUMN (direita, scrollável) ────────────────────────────────────
+  // Header meses
+  let monthsHead = `<div style="display:flex;height:22px;border-bottom:1px solid var(--border);background:var(--bg-subtle);">`;
+  months.forEach(m => {
+    monthsHead += `<div style="width:${m.count*DAY_W}px;min-width:${m.count*DAY_W}px;padding:3px 6px;font-size:11px;font-weight:700;color:var(--navy);border-right:1px solid var(--border-light);flex-shrink:0;white-space:nowrap;overflow:hidden;">${m.label}</div>`;
+  });
+  monthsHead += `</div>`;
+
+  // Header dias
+  let daysHead = `<div style="display:flex;height:22px;border-bottom:2px solid var(--border);background:var(--bg-subtle);">`;
+  days.forEach((d,i) => {
+    const isToday = i===todayIdx;
+    const isWknd  = d.getDay()===0||d.getDay()===6;
+    daysHead += `<div style="width:${DAY_W}px;min-width:${DAY_W}px;text-align:center;font-size:9px;font-weight:${isToday?'700':'400'};color:${isToday?'#E2A800':isWknd?'#ccc':'var(--text-muted)'};background:${isToday?'rgba(255,188,0,0.12)':'transparent'};border-right:1px solid var(--border-light);flex-shrink:0;line-height:22px;">${d.getDate()}</div>`;
+  });
+  daysHead += `</div>`;
+
+  // Linhas de barras
+  let barRows = '';
+  lastProj = null;
+  tasks.forEach(item => {
+    if (isPortfolio && item._projName !== lastProj) {
+      lastProj = item._projName;
+      barRows += `<div style="height:28px;background:var(--bg-subtle);border-bottom:1px solid var(--border);width:${totalW}px;"></div>`;
+    }
+
+    const si = dIdx(item.datePlan);
+    const ei = dIdx(item.dateReal);
+    const isLate = item.datePlan && !item.dateReal && new Date(item.datePlan+'T00:00:00') < today && item.status !== 'done';
+    const barColor = item.status==='done' ? 'var(--success)' : (isLate ? 'var(--error)' : 'var(--navy-mid)');
+
+    let bar = '';
+    if (si !== null || ei !== null) {
+      const leftIdx  = si !== null ? si : ei;
+      const rightIdx = ei !== null ? ei : si;
+      const left  = leftIdx * DAY_W;
+      const width = Math.max((rightIdx - leftIdx + 1) * DAY_W, DAY_W);
+      const label = item.title.length > 20 ? item.title.slice(0,18)+'…' : item.title;
+      bar = `<div style="position:absolute;left:${left}px;width:${width}px;height:20px;top:50%;transform:translateY(-50%);background:${barColor};border-radius:4px;display:flex;align-items:center;padding:0 6px;z-index:2;overflow:hidden;white-space:nowrap;" title="${item.title} | Início: ${item.datePlan?fmtDate(item.datePlan):'-'} | Conclusão: ${item.dateReal?fmtDate(item.dateReal):'-'}">
+        <span style="font-size:10px;font-weight:600;color:#fff;overflow:hidden;text-overflow:ellipsis;">${label}</span>
+      </div>`;
+    }
+
+    // Fundo listrado para fins de semana + linha de hoje
+    let bgCols = '';
+    days.forEach((d,i) => {
+      const isToday = i===todayIdx;
+      const isWknd  = d.getDay()===0||d.getDay()===6;
+      if (isToday || isWknd) {
+        bgCols += `<div style="position:absolute;left:${i*DAY_W}px;width:${DAY_W}px;top:0;bottom:0;background:${isToday?'rgba(255,188,0,0.07)':'rgba(0,0,0,0.02)'};z-index:0;"></div>`;
+      }
+    });
+
+    const todayLine = todayIdx >= 0
+      ? `<div style="position:absolute;left:${todayIdx*DAY_W+DAY_W/2}px;top:0;bottom:0;width:2px;background:var(--yellow);z-index:3;"></div>`
+      : '';
+
+    barRows += `<div style="position:relative;height:${ROW_H}px;width:${totalW}px;border-bottom:1px solid var(--border-light);">
+      ${bgCols}${todayLine}${bar}
+    </div>`;
+  });
+
+  return `
+    <div class="gantt-legend">
+      <div class="gantt-legend-item"><div class="gantt-legend-dot" style="background:var(--navy-mid);"></div>Em andamento</div>
+      <div class="gantt-legend-item"><div class="gantt-legend-dot" style="background:var(--success);"></div>Concluído</div>
+      <div class="gantt-legend-item"><div class="gantt-legend-dot" style="background:var(--error);"></div>Atrasado</div>
+      <div class="gantt-legend-item"><div class="gantt-legend-dot" style="background:var(--yellow);width:3px;border-radius:0;"></div>Hoje</div>
+    </div>
+    <div style="display:flex;border:1px solid var(--border);border-radius:var(--radius-sm);overflow:hidden;">
+      <div style="width:${LABEL_W}px;min-width:${LABEL_W}px;flex-shrink:0;border-right:2px solid var(--border);">${labelRows}</div>
+      <div style="flex:1;overflow-x:auto;">
+        <div style="width:${totalW}px;">
+          ${monthsHead}${daysHead}${barRows}
+        </div>
+      </div>
+    </div>`;
+}
+
+function changeTaskDate(e, idx, field) {
+  e.stopPropagation();
+  const p = STATE.projects.find(x => x.id === STATE.currentId); if (!p) return;
+  const val = e.target.value;
+  const old = p.backlog[idx][field] || '';
+  if (val === old) return;
+  p.backlog[idx][field] = val;
+  const label = field === 'datePlan' ? 'Data de Início' : 'Data de Conclusão';
+  addLog(p, 'task', `${label} de "${p.backlog[idx].title}": ${old ? fmtDate(old) : 'vazio'} → ${val ? fmtDate(val) : 'removida'}`);
+  save();
+}
+
+function fmtDate(s) {
+  if (!s) return '';
+  const [y, m, d] = s.split('-');
+  return `${d}/${m}/${y}`;
+}
+
+function fmtMonth(d) {
+  return ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'][d.getMonth()] + ' ' + d.getFullYear();
+}
+
+// ── TAB OWNERS ───────────────────────────────────────────────────────────────
+function tabDeps(p) {
+  const opts = STATE.projects.filter(x=>x.id!==p.id).map(x=>`<option value="${x.id}">#${x.number} — ${x.name}</option>`).join('');
+  const tags = (p.dependencies||[]).map(dId=>{
+    const d=STATE.projects.find(x=>x.id===dId);
+    return d?`<span class="dep-tag">#${d.number} ${d.name}<span class="dep-remove" onclick="removeDep('${p.id}','${dId}')">×</span></span>`:'';
+  }).join('');
+  return `
+    <div class="dep-tags">${tags||'<span style="font-size:12px;color:var(--text-muted);font-style:italic;">Nenhuma dependência</span>'}</div>
+    <div class="dep-row">
+      <select id="depSelect"><option value="">Selecione o projeto que este depende...</option>${opts}</select>
+      <button class="btn btn-secondary btn-sm" onclick="addDep('${p.id}')">+ Adicionar</button>
+    </div>`;
+}
+
+// ── TAB DESCRIÇÃO ─────────────────────────────────────────────────────────────
+function tabDesc(p) {
+  return `
+    <label class="input-label">Descrição / Briefing</label>
+    <textarea class="input" id="proj_desc" style="min-height:200px;">${p.description||''}</textarea>
+    <div style="margin-top:10px;display:flex;justify-content:flex-end;">
+      <button class="btn btn-primary btn-sm" onclick="saveDescription('${p.id}')">Salvar descrição</button>
+    </div>`;
+}
+
+// ── TAB RESPONSÁVEL ──────────────────────────────────────────────────────────
+function tabOwners(p) {
+  return `
+    <div style="margin-bottom:16px;">
+      <label class="input-label">Responsável pelo Projeto</label>
+      <select class="input" id="proj_owner" onchange="changeProjectOwner('${p.id}',this.value)">
+        ${ownerOptions(p.owner)}
+      </select>
+    </div>
+    ${STATE.members.length===0?`<div style="color:var(--text-muted);font-size:12px;">Nenhum membro cadastrado. Acesse 👥 Time no header para adicionar.</div>`:''}`;
+}
+
+// ── TAB CHANGELOG ────────────────────────────────────────────────────────────
+function tabChangelog(p) {
+  const log = p.changelog || [];
+  if (!log.length) return '<div style="color:var(--text-muted);font-size:12px;font-style:italic;">Nenhuma alteração registrada ainda.</div>';
+  return log.map(l=>`
+    <div class="changelog-item type-${l.type||'task'}">
+      <div class="changelog-ts">🕐 ${l.ts}</div>
+      <div class="changelog-text">${TYPE_ICON[l.type]||'•'} ${l.text}</div>
+    </div>`).join('');
+}
+
+// ─── ACTIONS ─────────────────────────────────────────────────────────────────
+function toggleItem(idx) { document.getElementById(`bi-${idx}`)?.classList.toggle('expanded'); }
+
+function toggleFlag(e, idx) {
+  e.stopPropagation();
+  const p = STATE.projects.find(x=>x.id===STATE.currentId); if (!p) return;
+  p.backlog[idx].flagged = !p.backlog[idx].flagged;
+  const f = p.backlog[idx].flagged;
+  addLog(p,'task',`Flag ${f?'ativada':'removida'} em: "${p.backlog[idx].title}"`);
+  save(); renderSidebar();
+  STATE.currentTab='backlog'; renderDetail();
+}
+
+function addUpdate(idx) {
+  const p = STATE.projects.find(x=>x.id===STATE.currentId); if (!p) return;
+  const ta = document.getElementById(`upd-${idx}`);
+  const text = ta.value.trim(); if (!text) { ta.focus(); return; }
+  if (!p.backlog[idx].updates) p.backlog[idx].updates=[];
+  p.backlog[idx].updates.push({ts:now(),text});
+  ta.value=''; save();
+  STATE.currentTab='backlog'; renderDetail();
+  setTimeout(()=>{ document.getElementById(`bi-${idx}`)?.classList.add('expanded'); },50);
+}
+
+function changeTaskOwner(e, idx) {
+  e.stopPropagation();
+  const p = STATE.projects.find(x=>x.id===STATE.currentId); if(!p) return;
+  const newOwner = e.target.value;
+  const oldName = memberName(p.backlog[idx].owner)||'ninguém';
+  const newName = memberName(newOwner)||'ninguém';
+  if(oldName === newName) return;
+  p.backlog[idx].owner = newOwner;
+  addLog(p,'owner',`Responsável da task "${p.backlog[idx].title}": ${oldName} → ${newName}`);
+  save(); renderSidebar();
+  STATE.currentTab='backlog'; renderDetail();
+  setTimeout(()=>{ document.getElementById(`bi-${idx}`)?.classList.add('expanded'); },50);
+}
+
+function changeTaskStatus(e,idx) {
+  e.stopPropagation();
+  const p=STATE.projects.find(x=>x.id===STATE.currentId); if(!p) return;
+  const nv=e.target.value, ov=p.backlog[idx].status||'not-started';
+  if(nv===ov) return;
+  p.backlog[idx].status=nv;
+  addLog(p,'task',`Task "${p.backlog[idx].title}": ${SM[ov].label} → ${SM[nv].label}`);
+  save(); renderSidebar();
+  STATE.currentTab='backlog'; renderDetail();
+}
+
+function removeItem(e,idx) {
+  e.stopPropagation();
+  const p=STATE.projects.find(x=>x.id===STATE.currentId); if(!p) return;
+  confirmAction(`Remover a task "${p.backlog[idx].title}"?`, () => {
+    addLog(p,'task',`Task removida: "${p.backlog[idx].title}"`);
+    p.backlog.splice(idx,1); save(); renderSidebar();
+    STATE.currentTab='backlog'; renderDetail();
+  }, 'Excluir');
+}
+
+function changeStatus(id,status) {
+  const p=STATE.projects.find(x=>x.id===id); if(!p) return;
+  const old=SM[p.status]?.label||p.status;
+  p.status=status;
+  addLog(p,'status',`Status: ${old} → ${SM[status].label}`);
+  save(); renderSidebar();
+}
+
+function changeProjectOwner(id,ownerId) {
+  const p=STATE.projects.find(x=>x.id===id); if(!p) return;
+  const oldName=memberName(p.owner)||'ninguém';
+  const newName=memberName(ownerId)||'ninguém';
+  p.owner=ownerId;
+  addLog(p,'owner',`Responsável: ${oldName} → ${newName}`);
+  save(); renderSidebar();
+}
+
+function addDep(pid) {
+  const sel=document.getElementById('depSelect');
+  const depId=sel.value; if(!depId) return;
+  const p=STATE.projects.find(x=>x.id===pid); if(!p) return;
+  if(!p.dependencies) p.dependencies=[];
+  if(!p.dependencies.includes(depId)){
+    p.dependencies.push(depId);
+    const dep=STATE.projects.find(x=>x.id===depId);
+    addLog(p,'dep',`Dependência adicionada: #${dep?.number} ${dep?.name}`);
+  }
+  sel.value=''; save();
+  STATE.currentTab='deps'; renderDetail();
+}
+
+function removeDep(pid,depId) {
+  const p=STATE.projects.find(x=>x.id===pid); if(!p) return;
+  const dep=STATE.projects.find(x=>x.id===depId);
+  addLog(p,'dep',`Dependência removida: #${dep?.number} ${dep?.name}`);
+  p.dependencies=(p.dependencies||[]).filter(d=>d!==depId);
+  save(); STATE.currentTab='deps'; renderDetail();
+}
+
+function saveDescription(id) {
+  const p=STATE.projects.find(x=>x.id===id); if(!p) return;
+  const nd=document.getElementById('proj_desc').value;
+  if(nd!==(p.description||'')) addLog(p,'desc','Descrição / Briefing atualizado');
+  p.description=nd; save();
+  const btn=event.target;
+  btn.textContent='Salvo!';
+  setTimeout(()=>btn.textContent='Salvar descrição',1500);
+}
+
+// ─── MODALS ──────────────────────────────────────────────────────────────────
+function openModal(id) {
+  if(id==='membersModal') renderMemberList();
+  if(id==='addProjectModal'||id==='addBacklogModal'){
+    const sel1=document.getElementById('np_owner');
+    const sel2=document.getElementById('nb_owner');
+    if(sel1) sel1.innerHTML=ownerOptions('');
+    if(sel2) sel2.innerHTML=ownerOptions('');
+  }
+  document.getElementById(id).classList.add('active');
+}
+function closeModal(id){ document.getElementById(id).classList.remove('active'); }
+
+function saveProject() {
+  const num=document.getElementById('np_number').value.trim();
+  const name=document.getElementById('np_name').value.trim();
+  if(!num||!name){alert('Preencha número e nome');return;}
+  const big=document.getElementById('np_big').value;
+  const st=document.getElementById('np_status').value;
+  const mo=document.getElementById('np_month').value.trim();
+  const yr=document.getElementById('np_year').value.trim();
+  const desc=document.getElementById('np_desc').value.trim();
+  const owner=document.getElementById('np_owner').value;
+  const period=[mo,yr].filter(Boolean).join('/');
+  const proj={id:uid(),number:parseInt(num),name,big,status:st,month:period,description:desc,owner,backlog:[],dependencies:[],changelog:[]};
+  addLog(proj,'task','Projeto criado');
+  STATE.projects.push(proj);
+  STATE.projects.sort((a,b)=>a.number-b.number);
+  save(); renderSidebar(); closeModal('addProjectModal');
+  ['np_number','np_name','np_month','np_year','np_desc'].forEach(i=>document.getElementById(i).value='');
+}
+
+function saveBacklogItem() {
+  const title=document.getElementById('nb_title').value.trim();
+  if(!title){alert('Digite o título');return;}
+  const owner=document.getElementById('nb_owner').value;
+  const desc=document.getElementById('nb_desc').value.trim();
+  const datePlan=document.getElementById('nb_date_plan')?.value||'';
+  const dateReal=document.getElementById('nb_date_real')?.value||'';
+  const p=STATE.projects.find(x=>x.id===STATE.currentId); if(!p) return;
+  if(!p.backlog) p.backlog=[];
+  p.backlog.push({title,status:'not-started',owner,description:desc,flagged:false,datePlan,dateReal,updates:[]});
+  addLog(p,'task',`Task adicionada: "${title}"${owner?' ('+memberName(owner)+')':''}${datePlan?' · Previsto: '+fmtDate(datePlan):''}`);
+  save(); renderSidebar(); closeModal('addBacklogModal');
+  ['nb_title','nb_desc','nb_date_plan','nb_date_real'].forEach(i=>{const el=document.getElementById(i);if(el)el.value='';});
+  save(); renderSidebar(); closeModal('addBacklogModal');
+  ['nb_title','nb_desc'].forEach(i=>document.getElementById(i).value='');
+  STATE.currentTab='backlog'; renderDetail();
+}
+
+// ─── EXEC ────────────────────────────────────────────────────────────────────
+function renderExec() {
+  const all=STATE.projects;
+  const total=all.length;
+  const byS={'not-started':0,'in-progress':0,'blocked':0,'done':0};
+  let totalItems=0,totalFlags=0;
+  all.forEach(p=>{byS[p.status]=(byS[p.status]||0)+1;totalItems+=(p.backlog?p.backlog.length:0);totalFlags+=(p.backlog?p.backlog.filter(i=>i.flagged).length:0);});
+  const pct=v=>total>0?Math.round((v/total)*100):0;
+  const big1=all.filter(p=>p.big==='big1'),big2=all.filter(p=>p.big==='big2');
+  const gaps=all.filter(p=>!p.backlog||!p.backlog.length);
+  const blocked=all.filter(p=>p.status==='blocked');
+  const feed=[];
+  all.forEach(p=>(p.backlog||[]).forEach(item=>(item.updates||[]).forEach(u=>feed.push({ts:u.ts,text:u.text,projectNum:p.number,projectName:p.name,taskTitle:item.title,big:p.big}))));
+  feed.sort((a,b)=>parseTs(b.ts)-parseTs(a.ts));
+
+  document.getElementById('execContent').innerHTML = `
+    <div class="exec-header">
+      <h1>Painel Executivo IOP</h1>
+      <p>Atualizado em ${now()} · ${total} projetos · ${totalItems} tasks · ${totalFlags} com atenção</p>
+    </div>
+
+    <div class="kpi-grid">
+      <div class="kpi-card"><div class="kpi-value">${total}</div><div class="kpi-label">Projetos</div><div class="kpi-sub">${totalItems} tasks</div></div>
+      <div class="kpi-card" style="border-left:3px solid #1DB87A;"><div class="kpi-value" style="color:#1DB87A;">${byS['done']}</div><div class="kpi-label">Concluídos</div><div class="kpi-sub">${pct(byS['done'])}%</div></div>
+      <div class="kpi-card" style="border-left:3px solid #FF9500;"><div class="kpi-value" style="color:#FF9500;">${byS['in-progress']}</div><div class="kpi-label">Em andamento</div><div class="kpi-sub">${pct(byS['in-progress'])}%</div></div>
+      <div class="kpi-card" style="border-left:3px solid #E5343A;"><div class="kpi-value" style="color:#E5343A;">${byS['blocked']}</div><div class="kpi-label">Bloqueados</div><div class="kpi-sub">${gaps.length} sem backlog</div></div>
+      <div class="kpi-card" style="border-left:3px solid #E5343A;"><div class="kpi-value" style="color:#E5343A;">${totalFlags}</div><div class="kpi-label">🚩 Atenção</div><div class="kpi-sub">tasks sinalizadas</div></div>
+    </div>
+
+    <div class="exec-grid">
+      <div class="exec-card">
+        <div class="exec-card-title">📊 Status dos Projetos</div>
+        ${Object.entries(SM).map(([k,v])=>`
+          <div class="sbar-row">
+            <div class="sbar-labels"><span style="color:var(--text-secondary);">${v.label}</span><span style="font-weight:600;">${byS[k]||0}</span></div>
+            <div class="sbar-track"><div class="sbar-fill" style="width:${pct(byS[k]||0)}%;background:${v.color};"></div></div>
+          </div>`).join('')}
+      </div>
+      <div class="exec-card">
+        <div class="exec-card-title">⚡ Big 1 vs Big 2</div>
+        <div class="big-cols">
+          ${[['big1','Big 1','var(--info)'],['big2','Big 2','#E2A800']].map(([key,label,color])=>{
+            const arr=all.filter(p=>p.big===key);
+            return `<div class="big-col">
+              <div class="big-col-title" style="color:${color};">${label}</div>
+              <div class="big-col-value">${arr.length}</div><div class="big-col-sub">projetos</div>
+              <div class="big-col-rows">${Object.entries(SM).map(([k,v])=>{const c=arr.filter(p=>p.status===k).length;return c>0?`<div class="big-col-row"><span style="color:var(--text-secondary);">${v.label}</span><span style="font-weight:600;">${c}</span></div>`:''}).join('')}</div>
+            </div>`;
+          }).join('')}
+        </div>
+      </div>
+      <div class="exec-card" style="grid-column:1/-1;">
+        <div class="exec-card-title">📈 Progresso por Projeto</div>
+        ${all.length===0?'<div style="color:var(--text-muted);font-size:12px;">Nenhum projeto ainda.</div>'
+          :all.map(p=>{
+            const t=p.backlog?p.backlog.length:0,d=p.backlog?p.backlog.filter(i=>i.status==='done').length:0;
+            const fl=p.backlog?p.backlog.filter(i=>i.flagged).length:0;
+            const pctP=t>0?Math.round((d/t)*100):0;
+            const st=SM[p.status]||SM['not-started'];
+            const deps=(p.dependencies||[]).map(dId=>{const dep=all.find(x=>x.id===dId);return dep?`#${dep.number}`:''}).filter(Boolean);
+            const owner=memberName(p.owner);
+            return `<div class="proj-row">
+              <div class="proj-row-left">
+                <span class="proj-row-num">#${p.number}</span>
+                <div>
+                  <div class="proj-row-name">${fl>0?'🚩 ':''}${p.name}</div>
+                  <div style="display:flex;gap:4px;margin-top:2px;flex-wrap:wrap;">
+                    <span class="badge ${p.big==='big1'?'badge-big1':'badge-big2'}">${p.big==='big1'?'Big 1':'Big 2'}</span>
+                    <span class="badge ${st.cls}">${st.label}</span>
+                    ${p.month?`<span style="font-size:10px;color:var(--text-muted);">${p.month}</span>`:''}
+                    ${owner?`<span style="font-size:10px;color:var(--text-muted);">👤${owner}</span>`:''}
+                    ${deps.length>0?`<span style="font-size:10px;color:var(--info);background:var(--info-bg);padding:1px 5px;border-radius:8px;">🔗${deps.join(',')}</span>`:''}
+                  </div>
+                </div>
+              </div>
+              <div class="proj-row-right">
+                ${t>0?`<div class="mini-bar"><div class="mini-bar-fill" style="width:${pctP}%"></div></div><span style="font-size:11px;font-weight:600;color:var(--text-secondary);">${pctP}%</span><span style="font-size:10px;color:var(--text-muted);">${d}/${t}</span>`
+                :'<span style="font-size:11px;color:var(--warning);background:var(--warning-bg);padding:2px 7px;border-radius:8px;">sem backlog</span>'}
+                ${fl>0?`<span style="font-size:10px;color:var(--error);background:var(--error-bg);padding:2px 7px;border-radius:8px;">🚩${fl}</span>`:''}
+              </div>
+            </div>`;
+          }).join('')}
+      </div>
+      <div class="exec-card">
+        <div class="exec-card-title">⚠️ Gaps — Sem Backlog (${gaps.length})</div>
+        ${gaps.length===0?'<div style="color:var(--success);font-size:12px;">Todos têm backlog.</div>'
+          :gaps.map(p=>`<div class="gap-item"><div class="gap-item-name">#${p.number} — ${p.name}</div><div class="gap-item-sub">${p.big==='big1'?'Big 1':'Big 2'} · ${p.month||'sem período'}</div></div>`).join('')}
+      </div>
+      <div class="exec-card">
+        <div class="exec-card-title">🚫 Bloqueados (${blocked.length})</div>
+        ${blocked.length===0?'<div style="color:var(--success);font-size:12px;">Nenhum bloqueado.</div>'
+          :blocked.map(p=>{
+            const deps=(p.dependencies||[]).map(dId=>{const d=all.find(x=>x.id===dId);return d?`#${d.number} ${d.name}`:''}).filter(Boolean);
+            return `<div class="blocked-item"><div class="blocked-item-name">#${p.number} — ${p.name}</div>${deps.length>0?`<div class="blocked-item-dep">🔗 ${deps.join(', ')}</div>`:''}</div>`;
+          }).join('')}
+      </div>
+    </div>
+
+    <div class="exec-card" style="margin-bottom:18px;overflow-x:auto;">
+      <div class="exec-card-title">📅 Timeline do Portfólio</div>
+      ${(()=>{
+        const tasks=[];
+        STATE.projects.forEach(p=>{
+          (p.backlog||[]).forEach(item=>{
+            if(item.datePlan||item.dateReal) tasks.push({...item,_projName:"#"+p.number+" "+p.name});
+          });
+        });
+        if(!tasks.length) return '<div class="gantt-empty">Nenhuma task com datas cadastradas ainda.</div>';
+        tasks.sort((a,b)=>{
+          const da=a.datePlan||a.dateReal||'9999';
+          const db=b.datePlan||b.dateReal||'9999';
+          if(a._projName!==b._projName) return a._projName.localeCompare(b._projName);
+          return da.localeCompare(db);
+        });
+        return buildGantt(tasks, true);
+      })()}
+    </div>
+
+    <div class="exec-card" style="margin-bottom:18px;">
+      <div class="exec-card-title">🕐 Últimas Atualizações do Portfólio</div>
+      ${feed.length===0?'<div style="color:var(--text-muted);font-size:12px;">Nenhuma atualização ainda.</div>'
+        :feed.map(f=>`<div class="feed-item"><div class="feed-item-project">#${f.projectNum} — ${f.projectName} <span class="badge ${f.big==='big1'?'badge-big1':'badge-big2'}">${f.big==='big1'?'Big 1':'Big 2'}</span></div><div class="feed-item-task">📋 ${f.taskTitle}</div><div class="feed-item-text">${f.text}</div><div class="feed-item-ts">🕐 ${f.ts}</div></div>`).join('')}
+    </div>
+
+    <div class="exec-card" style="margin-bottom:28px;">
+      <div class="exec-card-title">📅 Changelog Geral do Portfólio</div>
+      <div class="exec-cl-filters">
+        <label>De:</label><input type="date" id="cl_from">
+        <label>Até:</label><input type="date" id="cl_to">
+        <label>Projeto:</label>
+        <select id="cl_proj">
+          <option value="">Todos</option>
+          ${all.map(p=>`<option value="${p.id}">#${p.number} — ${p.name}</option>`).join('')}
+        </select>
+        <label>Tipo:</label>
+        <select id="cl_type">
+          <option value="">Todos</option>
+          <option value="status">Status</option>
+          <option value="task">Task</option>
+          <option value="dep">Dependência</option>
+          <option value="desc">Descrição</option>
+          <option value="owner">Responsável</option>
+        </select>
+        <button class="btn btn-primary btn-sm" onclick="renderChangelogExec()">Filtrar</button>
+        <button class="btn btn-secondary btn-sm" onclick="clearClFilters()">Limpar</button>
+      </div>
+      <div id="clExecList"></div>
+    </div>`;
+
+  renderChangelogExec();
+}
+
+function renderChangelogExec() {
+  const from = document.getElementById('cl_from')?.value;
+  const to   = document.getElementById('cl_to')?.value;
+  const projId = document.getElementById('cl_proj')?.value;
+  const type = document.getElementById('cl_type')?.value;
+
+  const all = STATE.projects;
+  const entries = [];
+  all.forEach(p => {
+    (p.changelog||[]).forEach(l => {
+      entries.push({ ...l, projectId:p.id, projectNum:p.number, projectName:p.name, big:p.big });
+    });
+  });
+
+  const filtered = entries.filter(e => {
+    const d = parseTs(e.ts);
+    if (from && d < new Date(from)) return false;
+    if (to   && d > new Date(to+'T23:59:59')) return false;
+    if (projId && e.projectId !== projId) return false;
+    if (type && e.type !== type) return false;
+    return true;
+  });
+
+  filtered.sort((a,b) => parseTs(b.ts) - parseTs(a.ts));
+
+  const container = document.getElementById('clExecList');
+  if (!container) return;
+  if (!filtered.length) { container.innerHTML = '<div style="color:var(--text-muted);font-size:12px;">Nenhum registro encontrado.</div>'; return; }
+  container.innerHTML = filtered.map(e=>`
+    <div class="exec-cl-item type-${e.type||'task'}">
+      <div class="exec-cl-project">#${e.projectNum} — ${e.projectName} <span class="badge ${e.big==='big1'?'badge-big1':'badge-big2'}">${e.big==='big1'?'Big 1':'Big 2'}</span></div>
+      <div class="exec-cl-text">${TYPE_ICON[e.type]||'•'} ${e.text}</div>
+      <div class="exec-cl-ts">🕐 ${e.ts}</div>
+    </div>`).join('');
+}
+
+function clearClFilters() {
+  ['cl_from','cl_to','cl_proj','cl_type'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  renderChangelogExec();
+}
+
+// ─── EXPORT CSV ──────────────────────────────────────────────────────────────
+function doExportCSV() {
+  try {
+    const SL={'not-started':'Não iniciado','in-progress':'Em andamento','blocked':'Bloqueado','done':'Concluído'};
+    const headers=['projeto_numero','projeto_nome','big','status','responsavel_projeto','periodo','dependencias','backlog_item','task_status','task_responsavel','task_flag','data_inicio','data_conclusao','atualizacao_data','atualizacao_texto'];
+    const rows=[headers.join(';')];
+
+    STATE.projects.forEach(p=>{
+      const bigL=p.big==='big1'?'Big 1':'Big 2';
+      const stL=SL[p.status]||p.status;
+      const ownerP=memberName(p.owner)||'';
+      const deps=(p.dependencies||[]).map(dId=>{const d=STATE.projects.find(x=>x.id===dId);return d?'#'+d.number:''}).filter(Boolean).join('|');
+
+      if(!p.backlog||!p.backlog.length){
+        rows.push([p.number,ce(p.name),bigL,stL,ce(ownerP),ce(p.month||''),ce(deps),'','','','','',''].join(';'));
+        return;
+      }
+      p.backlog.forEach(item=>{
+        const tSt=SL[item.status||'not-started']||'';
+        const tOwner=memberName(item.owner)||'';
+        const tFlag=item.flagged?'Sim':'Não';
+        const tPlan=item.datePlan?fmtDate(item.datePlan):'';
+        const tReal=item.dateReal?fmtDate(item.dateReal):'';
+        if(!item.updates||!item.updates.length){
+          rows.push([p.number,ce(p.name),bigL,stL,ce(ownerP),ce(p.month||''),ce(deps),ce(item.title),tSt,ce(tOwner),tFlag,tPlan,tReal,'',''].join(';'));
+          return;
+        }
+        item.updates.forEach(u=>{
+          rows.push([p.number,ce(p.name),bigL,stL,ce(ownerP),ce(p.month||''),ce(deps),ce(item.title),tSt,ce(tOwner),tFlag,tPlan,tReal,ce(u.ts),ce(u.text)].join(';'));
+        });
+      });
+    });
+
+    const csv='\uFEFF'+rows.join('\r\n');
+    const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url;
+    a.download='iop_backlog_'+today()+'.csv';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(()=>URL.revokeObjectURL(url),1000);
+  } catch(e) {
+    alert('Erro ao exportar CSV: '+e.message);
+  }
+}
+
+// ─── EXPORT JSON ─────────────────────────────────────────────────────────────
+function doExportJSON() {
+  try {
+    const content=JSON.stringify({projects:STATE.projects,members:STATE.members},null,2);
+    const blob=new Blob([content],{type:'application/json'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url;
+    a.download='iop_backlog_'+today()+'.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(()=>URL.revokeObjectURL(url),1000);
+  } catch(e) {
+    alert('Erro ao exportar JSON: '+e.message);
+  }
+}
+
+function ce(v){if(v==null)return '';const s=String(v).replace(/\r\n/g,' ').replace(/\n/g,' ');return(s.includes(';')||s.includes('"'))?'"'+s.replace(/"/g,'""')+'"':s;}
+
+// ─── IMPORT ──────────────────────────────────────────────────────────────────
+function triggerImport(){document.getElementById('importInput').click();}
+function importData(e){
+  const file=e.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    try{
+      const d=JSON.parse(ev.target.result);
+      confirmAction('Isso vai substituir os dados atuais. Continuar?', () => {
+        if(Array.isArray(d)){STATE.projects=d;STATE.members=[];}
+        else{STATE.projects=d.projects||[];STATE.members=d.members||[];}
+        STATE.currentId=null;save();renderSidebar();
+        document.getElementById('emptyState').style.display='flex';
+        document.getElementById('projectDetail').style.display='none';
+      }, 'Importar');
+    }catch(err){alert('Arquivo inválido: '+err.message);}
+  };
+  reader.readAsText(file);e.target.value='';
+}
+
+// ─── UTILS ───────────────────────────────────────────────────────────────────
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2);}
+function now(){return new Date().toLocaleString('pt-BR');}
+function today(){return new Date().toISOString().slice(0,10);}
+function parseTs(s){
+  try{
+    const[dt,tm]=s.split(', ');
+    const[dd,mm,yy]=dt.split('/');
+    const[hh,mi,ss]=(tm||'').split(':');
+    return new Date(+yy,+mm-1,+dd,+hh||0,+mi||0,+ss||0);
+  }catch{return new Date(0);}
+}
+
+// ─── BOOT ────────────────────────────────────────────────────────────────────
+(async () => {
+  if (sessionStorage.getItem('iop_auth') === '1') {
+    document.getElementById('lockScreen').style.display = 'none';
+    await load();
+    renderSidebar();
+  } else {
+    setTimeout(() => document.getElementById('lockInput').focus(), 150);
+    // Pré-carrega em background pra quando logar estar pronto
+    await load();
+    renderSidebar();
+  }
+})();
+</script>
+</body>
+</html>
