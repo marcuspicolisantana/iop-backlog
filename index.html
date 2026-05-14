@@ -199,6 +199,18 @@ textarea.input{min-height:70px;resize:vertical;}
 .modal-body{padding:20px;display:flex;flex-direction:column;gap:12px;}
 .modal-footer{padding:12px 20px;border-top:1px solid var(--border);display:flex;gap:7px;justify-content:flex-end;}
 
+/* DRAG AND DROP */
+.backlog-item.dragging{opacity:0.4;border:2px dashed var(--yellow);}
+.backlog-item.drag-over{border-top:3px solid var(--yellow);}
+.drag-handle{cursor:grab;padding:4px 6px;color:var(--text-muted);font-size:16px;line-height:1;user-select:none;flex-shrink:0;}
+.drag-handle:active{cursor:grabbing;}
+.task-edit-btn{background:none;border:1.5px solid var(--border);border-radius:6px;padding:3px 8px;font-size:11px;font-weight:600;color:var(--navy);cursor:pointer;font-family:inherit;transition:all 0.15s;}
+.task-edit-btn:hover{background:var(--bg-hover);border-color:var(--navy);}
+.proj-edit-btn{background:rgba(255,255,255,0.15);border:1.5px solid rgba(255,255,255,0.3);border-radius:6px;padding:4px 10px;font-size:11px;font-weight:600;color:#fff;cursor:pointer;font-family:inherit;}
+.proj-edit-btn:hover{background:rgba(255,255,255,0.25);}
+.proj-order-btn{background:none;border:none;cursor:pointer;padding:2px 5px;color:rgba(255,255,255,0.6);font-size:12px;line-height:1;}
+.proj-order-btn:hover{color:#fff;}
+
 /* GANTT */
 .gantt-empty{text-align:center;padding:28px;color:var(--text-muted);font-size:13px;line-height:1.7;}
 .gantt-legend{display:flex;gap:14px;margin-bottom:12px;flex-wrap:wrap;}
@@ -421,6 +433,89 @@ textarea.input{min-height:70px;resize:vertical;}
     <div class="modal-footer">
       <button class="btn btn-secondary" onclick="closeModal('addProjectModal')">Cancelar</button>
       <button class="btn btn-primary" onclick="saveProject()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL EDITAR TASK -->
+<div class="modal-overlay" id="editTaskModal">
+  <div class="modal" style="max-width:540px;">
+    <div class="modal-header" style="display:flex;justify-content:space-between;align-items:center;">
+      <div class="modal-title">Editar Task</div>
+      <button class="btn-danger-sm" onclick="deleteTaskFromModal()">Excluir task</button>
+    </div>
+    <div class="modal-body">
+      <div><label class="input-label">Título</label><input type="text" class="input" id="et_title"></div>
+      <div class="form-row">
+        <div><label class="input-label">Status</label>
+          <select class="input" id="et_status">
+            <option value="not-started">Não iniciado</option>
+            <option value="in-progress">Em andamento</option>
+            <option value="blocked">Bloqueado</option>
+            <option value="done">Concluído</option>
+          </select>
+        </div>
+        <div><label class="input-label">Responsável</label>
+          <select class="input" id="et_owner"><option value="">Sem responsável</option></select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div><label class="input-label">Data de Início</label><input type="date" class="input" id="et_date_plan"></div>
+        <div><label class="input-label">Data de Conclusão</label><input type="date" class="input" id="et_date_real"></div>
+      </div>
+      <div><label class="input-label">Descrição</label><textarea class="input" id="et_desc" style="min-height:100px;"></textarea></div>
+      <div style="display:flex;align-items:center;gap:10px;padding:10px 0;">
+        <input type="checkbox" id="et_flag" style="width:16px;height:16px;cursor:pointer;">
+        <label for="et_flag" style="font-size:13px;font-weight:500;color:var(--text-secondary);cursor:pointer;">🚩 Marcar como atenção</label>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('editTaskModal')">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveEditTask()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL EDITAR PROJETO -->
+<div class="modal-overlay" id="editProjectModal">
+  <div class="modal" style="max-width:540px;">
+    <div class="modal-header" style="display:flex;justify-content:space-between;align-items:center;">
+      <div class="modal-title">Editar Projeto</div>
+      <button class="btn-danger-sm" onclick="deleteProjectFromModal()">Excluir projeto</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div><label class="input-label">Número</label><input type="number" class="input" id="ep_number"></div>
+        <div style="flex:3;"><label class="input-label">Nome</label><input type="text" class="input" id="ep_name"></div>
+      </div>
+      <div class="form-row">
+        <div><label class="input-label">Big</label>
+          <select class="input" id="ep_big">
+            <option value="big1">Big 1 — Customer Support 2.0</option>
+            <option value="big2">Big 2 — Client Facing</option>
+          </select>
+        </div>
+        <div><label class="input-label">Status</label>
+          <select class="input" id="ep_status">
+            <option value="not-started">Não iniciado</option>
+            <option value="in-progress">Em andamento</option>
+            <option value="blocked">Bloqueado</option>
+            <option value="done">Concluído</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div><label class="input-label">Mês</label><input type="text" class="input" id="ep_month" placeholder="Ex: Jun"></div>
+        <div><label class="input-label">Ano</label><input type="number" class="input" id="ep_year" placeholder="2026"></div>
+        <div style="flex:2;"><label class="input-label">Responsável</label>
+          <select class="input" id="ep_owner"><option value="">Sem responsável</option></select>
+        </div>
+      </div>
+      <div><label class="input-label">Descrição / Briefing</label><textarea class="input" id="ep_desc" style="min-height:90px;"></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('editProjectModal')">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveEditProject()">Salvar</button>
     </div>
   </div>
 </div>
@@ -703,14 +798,23 @@ function renderSidebar() {
     const flags = p.backlog ? p.backlog.filter(i => i.flagged).length : 0;
     const owner = memberName(p.owner);
     return `<div class="project-item ${STATE.currentId===p.id?'active':''}" onclick="selectProject('${p.id}')">
-      <div class="project-num">#${p.number}${p.month?' · '+p.month:''}</div>
-      <div class="project-name">${flags>0?'🚩 ':''}${p.name}</div>
-      <div class="project-meta">
-        <span class="badge ${p.big==='big1'?'badge-big1':'badge-big2'}">${p.big==='big1'?'Big 1':'Big 2'}</span>
-        <span class="badge ${st.cls}">${st.label}</span>
-        ${owner?`<span style="font-size:10px;color:var(--text-muted);">👤${owner}</span>`:''}
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:4px;">
+        <div style="flex:1;min-width:0;">
+          <div class="project-num">#${p.number}${p.month?' · '+p.month:''}</div>
+          <div class="project-name">${flags>0?'🚩 ':''}${p.name}</div>
+          <div class="project-meta">
+            <span class="badge ${p.big==='big1'?'badge-big1':'badge-big2'}">${p.big==='big1'?'Big 1':'Big 2'}</span>
+            <span class="badge ${st.cls}">${st.label}</span>
+            ${owner?`<span style="font-size:10px;color:var(--text-muted);">👤${owner}</span>`:''}
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:1px;flex-shrink:0;" onclick="event.stopPropagation()">
+          <button title="Mover cima" onclick="moveProject('${p.id}',-1)" style="background:none;border:none;cursor:pointer;color:var(--text-muted);font-size:11px;padding:1px 4px;line-height:1;">▲</button>
+          <button title="Editar" onclick="openEditProject('${p.id}')" style="background:none;border:none;cursor:pointer;color:var(--text-muted);font-size:11px;padding:1px 4px;line-height:1;">✏️</button>
+          <button title="Mover baixo" onclick="moveProject('${p.id}',1)" style="background:none;border:none;cursor:pointer;color:var(--text-muted);font-size:11px;padding:1px 4px;line-height:1;">▼</button>
+        </div>
       </div>
-      ${total>0?`<div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:${Math.round((done/total)*100)}%"></div></div><div style="font-size:10px;color:var(--text-muted);margin-top:3px;">${done}/${total} concluídos${flags>0?' · 🚩'+flags+' atenção':''}</div>`:''}
+      ${total>0?`<div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:${Math.round((done/total)*100)}%"></div></div><div style="font-size:10px;color:var(--text-muted);margin-top:3px;">${done}/${total} concluídos${flags>0?' · 🚩'+flags:''}</div>`:''}
     </div>`;
   }).join('');
 }
@@ -741,6 +845,7 @@ function renderDetail() {
           ${Object.entries(SM).map(([k,v])=>`<option value="${k}" ${p.status===k?'selected':''}>${v.label}</option>`).join('')}
         </select>
         ${owner?`<span class="owner-tag">👤 ${owner}</span>`:''}
+        <button class="proj-edit-btn" onclick="openEditProject('${p.id}')">✏️ Editar projeto</button>
       </div>
     </div>
     <div style="background:#fff;border:1px solid var(--border);border-top:none;border-radius:0 0 var(--radius-md) var(--radius-md);margin-bottom:14px;">
@@ -802,8 +907,9 @@ function tabBacklog(p) {
         const uc = item.updates ? item.updates.length : 0;
         const st = SM[item.status||'not-started'];
         const owner = memberName(item.owner);
-        return `<div class="backlog-item ${item.flagged?'flagged':''}" id="bi-${idx}">
+        return `<div class="backlog-item ${item.flagged?'flagged':''}" id="bi-${idx}" draggable="true" ondragstart="dragStart(event,${idx})" ondragover="dragOver(event,${idx})" ondrop="dragDrop(event,${idx})" ondragleave="dragLeave(event,${idx})" ondragend="dragEnd(event)">
           <div class="backlog-item-header">
+            <span class="drag-handle" title="Arrastar para reordenar">⠿</span>
             <div class="backlog-item-left" onclick="toggleItem(${idx})">
               <div class="backlog-item-title">
                 ${item.flagged?'🚩':''}${item.title}
@@ -817,11 +923,11 @@ function tabBacklog(p) {
               </div>
             </div>
             <div class="backlog-item-right">
+              <button type="button" class="task-edit-btn" onclick="openEditTask(event,${idx})">✏️ Editar</button>
               <button type="button" class="flag-btn ${item.flagged?'active':''}" onclick="toggleFlag(event,${idx})" title="Flag de atenção">🚩</button>
               <select class="task-status-select" onchange="changeTaskStatus(event,${idx})" onclick="event.stopPropagation()">
                 ${Object.entries(SM).map(([k,v])=>`<option value="${k}" ${(item.status||'not-started')===k?'selected':''}>${v.label}</option>`).join('')}
               </select>
-              <button type="button" onclick="(function(e){e.stopPropagation();e.preventDefault();confirmAction('Remover a task &quot;'+STATE.projects.find(function(x){return x.id===STATE.currentId})?.backlog[${idx}]?.title+'&quot;?',function(){var p=STATE.projects.find(function(x){return x.id===STATE.currentId});if(!p)return;addLog(p,'task','Task removida: &quot;'+p.backlog[${idx}].title+'&quot;');p.backlog.splice(${idx},1);save();renderSidebar();STATE.currentTab='backlog';renderDetail();},'Excluir');})(event)" style="background:none;border:1.5px solid var(--border);border-radius:6px;padding:3px 9px;font-size:11px;font-weight:600;color:var(--error);cursor:pointer;font-family:inherit;">Excluir</button>
               <span style="cursor:pointer;color:var(--text-muted);padding:2px 5px;" onclick="toggleItem(${idx})">▼</span>
             </div>
           </div>
@@ -1084,7 +1190,168 @@ function tabChangelog(p) {
     </div>`).join('');
 }
 
-// ─── ACTIONS ─────────────────────────────────────────────────────────────────
+// ─── DRAG AND DROP BACKLOG ────────────────────────────────────────────────────
+let dragIdx = null;
+
+function dragStart(e, idx) {
+  dragIdx = idx;
+  setTimeout(() => document.getElementById(`bi-${idx}`)?.classList.add('dragging'), 0);
+}
+
+function dragEnd(e) {
+  document.querySelectorAll('.backlog-item').forEach(el => {
+    el.classList.remove('dragging','drag-over');
+  });
+  dragIdx = null;
+}
+
+function dragOver(e, idx) {
+  e.preventDefault();
+  if (dragIdx === null || dragIdx === idx) return;
+  document.querySelectorAll('.backlog-item').forEach(el => el.classList.remove('drag-over'));
+  document.getElementById(`bi-${idx}`)?.classList.add('drag-over');
+}
+
+function dragLeave(e, idx) {
+  document.getElementById(`bi-${idx}`)?.classList.remove('drag-over');
+}
+
+function dragDrop(e, idx) {
+  e.preventDefault();
+  if (dragIdx === null || dragIdx === idx) return;
+  const p = STATE.projects.find(x => x.id === STATE.currentId); if (!p) return;
+  const moved = p.backlog.splice(dragIdx, 1)[0];
+  p.backlog.splice(idx, 0, moved);
+  addLog(p, 'task', `Task "${moved.title}" reordenada para posição ${idx+1}`);
+  save(); STATE.currentTab = 'backlog'; renderDetail();
+}
+
+// ─── MOVER PROJETO ────────────────────────────────────────────────────────────
+function moveProject(id, dir) {
+  const idx = STATE.projects.findIndex(x => x.id === id);
+  if (idx < 0) return;
+  const newIdx = idx + dir;
+  if (newIdx < 0 || newIdx >= STATE.projects.length) return;
+  const tmp = STATE.projects[idx];
+  STATE.projects[idx] = STATE.projects[newIdx];
+  STATE.projects[newIdx] = tmp;
+  save(); renderSidebar();
+}
+
+// ─── EDITAR TASK ──────────────────────────────────────────────────────────────
+let editTaskIdx = null;
+
+function openEditTask(e, idx) {
+  e.stopPropagation();
+  const p = STATE.projects.find(x => x.id === STATE.currentId); if (!p) return;
+  const item = p.backlog[idx]; if (!item) return;
+  editTaskIdx = idx;
+  document.getElementById('et_title').value       = item.title || '';
+  document.getElementById('et_status').value      = item.status || 'not-started';
+  document.getElementById('et_owner').innerHTML   = ownerOptions(item.owner);
+  document.getElementById('et_date_plan').value   = item.datePlan || '';
+  document.getElementById('et_date_real').value   = item.dateReal || '';
+  document.getElementById('et_desc').value        = item.description || '';
+  document.getElementById('et_flag').checked      = !!item.flagged;
+  openModal('editTaskModal');
+}
+
+function saveEditTask() {
+  const p = STATE.projects.find(x => x.id === STATE.currentId); if (!p) return;
+  const idx = editTaskIdx; if (idx === null || idx === undefined) return;
+  const item = p.backlog[idx]; if (!item) return;
+
+  const oldTitle = item.title;
+  item.title       = document.getElementById('et_title').value.trim() || item.title;
+  item.status      = document.getElementById('et_status').value;
+  item.owner       = document.getElementById('et_owner').value;
+  item.datePlan    = document.getElementById('et_date_plan').value;
+  item.dateReal    = document.getElementById('et_date_real').value;
+  item.description = document.getElementById('et_desc').value;
+  item.flagged     = document.getElementById('et_flag').checked;
+
+  if (oldTitle !== item.title) addLog(p, 'task', `Task renomeada: "${oldTitle}" → "${item.title}"`);
+  addLog(p, 'task', `Task "${item.title}" editada`);
+
+  save(); renderSidebar();
+  STATE.currentTab = 'backlog';
+  renderDetail();
+  closeModal('editTaskModal');
+  editTaskIdx = null;
+}
+
+function deleteTaskFromModal() {
+  const p = STATE.projects.find(x => x.id === STATE.currentId); if (!p) return;
+  const idx = editTaskIdx; if (idx === null) return;
+  const title = p.backlog[idx]?.title || '';
+  closeModal('editTaskModal');
+  confirmAction(`Remover a task "${title}"?`, () => {
+    addLog(p, 'task', `Task removida: "${title}"`);
+    p.backlog.splice(idx, 1);
+    save(); renderSidebar();
+    STATE.currentTab = 'backlog'; renderDetail();
+  }, 'Excluir');
+}
+
+// ─── EDITAR PROJETO ───────────────────────────────────────────────────────────
+let editProjectId = null;
+
+function openEditProject(id) {
+  const p = STATE.projects.find(x => x.id === id); if (!p) return;
+  editProjectId = id;
+  const [mo, yr] = (p.month || '').split('/');
+  document.getElementById('ep_number').value   = p.number || '';
+  document.getElementById('ep_name').value     = p.name || '';
+  document.getElementById('ep_big').value      = p.big || 'big1';
+  document.getElementById('ep_status').value   = p.status || 'not-started';
+  document.getElementById('ep_month').value    = mo || '';
+  document.getElementById('ep_year').value     = yr || '';
+  document.getElementById('ep_owner').innerHTML = ownerOptions(p.owner);
+  document.getElementById('ep_desc').value     = p.description || '';
+  openModal('editProjectModal');
+}
+
+function saveEditProject() {
+  const p = STATE.projects.find(x => x.id === editProjectId); if (!p) return;
+  const num  = document.getElementById('ep_number').value.trim();
+  const name = document.getElementById('ep_name').value.trim();
+  if (!num || !name) { alert('Preencha número e nome'); return; }
+  const mo = document.getElementById('ep_month').value.trim();
+  const yr = document.getElementById('ep_year').value.trim();
+
+  const oldName = p.name;
+  p.number      = parseInt(num);
+  p.name        = name;
+  p.big         = document.getElementById('ep_big').value;
+  p.status      = document.getElementById('ep_status').value;
+  p.month       = [mo, yr].filter(Boolean).join('/');
+  p.owner       = document.getElementById('ep_owner').value;
+  p.description = document.getElementById('ep_desc').value;
+
+  if (oldName !== p.name) addLog(p, 'task', `Projeto renomeado: "${oldName}" → "${p.name}"`);
+  addLog(p, 'task', `Projeto "${p.name}" editado`);
+
+  save(); renderSidebar();
+  if (STATE.currentId === p.id) renderDetail();
+  closeModal('editProjectModal');
+  editProjectId = null;
+}
+
+function deleteProjectFromModal() {
+  const p = STATE.projects.find(x => x.id === editProjectId); if (!p) return;
+  closeModal('editProjectModal');
+  confirmAction(`Excluir o projeto "${p.name}"? Isso remove todas as tasks e histórico.`, () => {
+    STATE.projects = STATE.projects.filter(x => x.id !== editProjectId);
+    if (STATE.currentId === editProjectId) {
+      STATE.currentId = null;
+      document.getElementById('emptyState').style.display = 'flex';
+      document.getElementById('projectDetail').style.display = 'none';
+    }
+    save(); renderSidebar();
+    editProjectId = null;
+  }, 'Excluir');
+}
+
 function toggleItem(idx) { document.getElementById(`bi-${idx}`)?.classList.toggle('expanded'); }
 
 function toggleFlag(e, idx) {
@@ -1194,12 +1461,18 @@ function saveDescription(id) {
 
 // ─── MODALS ──────────────────────────────────────────────────────────────────
 function openModal(id) {
-  if(id==='membersModal') renderMemberList();
-  if(id==='addProjectModal'||id==='addBacklogModal'){
-    const sel1=document.getElementById('np_owner');
-    const sel2=document.getElementById('nb_owner');
-    if(sel1) sel1.innerHTML=ownerOptions('');
-    if(sel2) sel2.innerHTML=ownerOptions('');
+  if (id === 'membersModal') renderMemberList();
+  if (id === 'addProjectModal' || id === 'addBacklogModal') {
+    const sel1 = document.getElementById('np_owner');
+    const sel2 = document.getElementById('nb_owner');
+    if (sel1) sel1.innerHTML = ownerOptions('');
+    if (sel2) sel2.innerHTML = ownerOptions('');
+  }
+  if (id === 'editTaskModal') {
+    // owner já populado em openEditTask
+  }
+  if (id === 'editProjectModal') {
+    // owner já populado em openEditProject
   }
   document.getElementById(id).classList.add('active');
 }
